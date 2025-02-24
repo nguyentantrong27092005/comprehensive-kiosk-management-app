@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS `kioskapp`.`evouchertangmon` (
   `EVoucherID` INT NULL,
   `FoodItemID` INT NULL,
   `MinimumPrice` INT NULL,
+  `Amount` INT NOT NULL,
   `CreateAt` DATETIME NULL,
   `UpdateAt` DATETIME NULL,
   `DeleteAt` DATETIME NULL,

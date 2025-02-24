@@ -11,6 +11,8 @@ Sử dụng dữ liệu để áp giảm giá cho tổng đơn hàng.*/
 SELECT evgg.ID
 	  ,evgg.Discount --Giá trị giảm
 	  ,evgg.IsPercent --Flag giảm theo phần trăm
+      ,evgg.MinimumPrice --Hoá đơn ít nhất bao nhiêu thì mới được áp mã giảm giá
+      ,evgg.MaximumDiscount --Hoá đon được giảm nhiều nhất là bao nhiêu
 FROM evouchergiamgia evgg
 INNER JOIN evoucher ev
 ON ev.ID = evgg.EVoucherID
@@ -35,6 +37,7 @@ SELECT fi.ID
 	  ,0 AS DiscountedPrice --Tặng món nên giá sau giảm là 0đ
 	  ,evtm.ID AS EvoucherTangMonID
 	  ,evtm.Amount --Số lượng món được tặng
+      ,evtm.MinimumPrice --Hoá đơn ít nhất bao nhiêu thì mới được áp mã giảm giá
 FROM evouchertangmon evtm
 INNER JOIN evoucher ev
 ON ev.ID = evtm.EVoucherID

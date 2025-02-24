@@ -3,6 +3,7 @@ SELECT vg.ID --Mã nhóm chọn variant (variant là chọn đường, chọn đ
 	  ,vg.Name --Tên nhóm variant
 	  ,vg.IsRequired --Flag bắt buộc phải chọn
 	  ,vg.ViewType --dạng slider, radio button
+      ,vg.HasPrice --variant có tính thêm tiền hay không
 FROM VariantGroupFoodItem vgfi
 INNER JOIN VariantGroup vg
     ON vg.ID = vgfi.VariantGroupID
@@ -12,6 +13,8 @@ WHERE vgfi.FoodItemID = {Id_của_món_đang_được_chọn}
 /*1 món có nhiều variant group => thực hiện query variant của từng variantGroup*/
 SELECT ID
 	  ,Value --các option bên trong của variant
+      ,Price --giá của variant nếu có
+      ,AdditionalCost --giá cost của variant
 FROM Variant
 WHERE VariantGroupID = {variant_group_id từ câu query phía trên}
 

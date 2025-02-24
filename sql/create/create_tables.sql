@@ -1,5 +1,5 @@
-CREATE SCHEMA `kioskapp`;
-CREATE TABLE `kioskapp`.`evouchergiamgialist` (
+CREATE SCHEMA IF NOT EXISTS `kioskapp`;
+CREATE TABLE IF NOT EXISTS `kioskapp`.`evouchergiamgialist` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `EVoucherGiamGiaID` INT NULL,
   `Value` VARCHAR(20) NULL,
@@ -9,7 +9,7 @@ CREATE TABLE `kioskapp`.`evouchergiamgialist` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
 ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`evouchergiamgia` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`evouchergiamgia` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `EVoucherID` INT NULL,
   `Discount` INT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE `kioskapp`.`evouchergiamgia` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
 ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`evoucher` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`evoucher` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(256) NULL,
   `Category` ENUM('Giam gia', 'Tang mon') NULL,
@@ -32,7 +32,7 @@ CREATE TABLE `kioskapp`.`evoucher` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
 ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`order` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`order` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `EVoucherGiamGiaID` INT NULL,
   `Payment` ENUM('cash', 'bank') NULL,
@@ -46,7 +46,7 @@ CREATE TABLE `kioskapp`.`order` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`orderdetails` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`orderdetails` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `OrderID` INT NULL,
   `FoodItemID` INT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE `kioskapp`.`orderdetails` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
  ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`evouchertangmonlist` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`evouchertangmonlist` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `EVoucherTangMonID` INT NULL,
   `Value` VARCHAR(20) NULL,
@@ -71,7 +71,7 @@ CREATE TABLE `kioskapp`.`evouchertangmonlist` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
    ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`evouchertangmon` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`evouchertangmon` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `EVoucherID` INT NULL,
   `FoodItemID` INT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE `kioskapp`.`evouchertangmon` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
     ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`fooditem` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`fooditem` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `CategoryID` INT NULL,
   `CustomID` VARCHAR(15) NULL,
@@ -99,7 +99,7 @@ CREATE TABLE `kioskapp`.`fooditem` (
   UNIQUE INDEX `CustomID_UNIQUE` (`CustomID` ASC) VISIBLE)
   ENGINE = InnoDB;
 
-CREATE TABLE `kioskapp`.`Category` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`Category` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(256) NULL,
   `ImageURL` VARCHAR(512) NULL,
@@ -108,7 +108,7 @@ CREATE TABLE `kioskapp`.`Category` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`toppinggroupfooditem` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`toppinggroupfooditem` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `ToppingGroupID` INT NULL,
   `FoodItemID` INT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE `kioskapp`.`toppinggroupfooditem` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
    ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`variantgroupfooditem` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`variantgroupfooditem` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `VariantGroupID` INT NULL,
   `FoodItemID` INT NULL,
@@ -126,14 +126,14 @@ CREATE TABLE `kioskapp`.`variantgroupfooditem` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`promotionfooditem` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`promotionfooditem` (
   `PromotionID` INT NOT NULL,
   `FoodItemID` INT NULL,
   `CreateAt` DATETIME NULL,
   `UpdateAt` DATETIME NULL,
   `DeleteAt` DATETIME NULL)
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`fooditem_history` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`fooditem_history` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `FoodItemID` INT NULL,
   `Price` INT NULL,
@@ -144,7 +144,7 @@ CREATE TABLE `kioskapp`.`fooditem_history` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`variantgroup` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`variantgroup` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(256) NULL,
   `ViewType` VARCHAR(48) NULL,
@@ -153,7 +153,7 @@ CREATE TABLE `kioskapp`.`variantgroup` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`promotion` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`promotion` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(256) NULL,
   `Discount` INT NULL,
@@ -165,7 +165,7 @@ CREATE TABLE `kioskapp`.`promotion` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`toppinggroup` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`toppinggroup` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(256) NULL,
   `CreateAt` DATETIME NULL,
@@ -173,7 +173,7 @@ CREATE TABLE `kioskapp`.`toppinggroup` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`topping` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`topping` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `ToppingGroup` INT NULL,
   `FoodItemID` INT NULL,
@@ -182,7 +182,7 @@ CREATE TABLE `kioskapp`.`topping` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
     ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`orderdetailstopping` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`orderdetailstopping` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `OrderDetailsID` INT NULL,
   `ToppingID` INT NULL,
@@ -193,7 +193,7 @@ CREATE TABLE `kioskapp`.`orderdetailstopping` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
     ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`variant` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`variant` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `VariantGroupID` INT NULL,
   `Value` INT NULL,
@@ -202,7 +202,7 @@ CREATE TABLE `kioskapp`.`variant` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
   ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`user` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`user` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `HashingAlgorithmID` INT NULL,
   `Name` VARCHAR(100) NULL,
@@ -215,7 +215,7 @@ CREATE TABLE `kioskapp`.`user` (
   `DeleteAt` DATETIME NULL,
   PRIMARY KEY (`ID`))
    ENGINE = InnoDB;
-CREATE TABLE `kioskapp`.`hashingalgorithm` (
+CREATE TABLE IF NOT EXISTS `kioskapp`.`hashingalgorithm` (
   `ID` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(10) NULL,
   `CreateAt` DATETIME NULL,

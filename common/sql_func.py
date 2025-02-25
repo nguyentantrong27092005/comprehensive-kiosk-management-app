@@ -49,12 +49,20 @@ def fetch_data(user, password, query, host="34.101.167.101", database="test_db")
         return None
 import pymysql
 
-def insert_user_data(user, password, name, age):
-    """Kết nối đến MySQL và gọi Stored Procedure InsertTestData"""
+
+def call_stored_procedure(user, password, stored_proc_name, *params):
     """
-    # Gọi hàm để chèn dữ liệu
-    insert_user_data("dev", "12345678x@X", "Alice", 22)
-    insert_user_data("dev", "12345678x@X", "Bob", 25)
+    Kết nối đến MySQL và gọi một Stored Procedure bất kỳ.
+
+    Tham số:
+        - user (str): Tên người dùng MySQL.
+        - password (str): Mật khẩu MySQL.
+        - stored_proc_name (str): Tên stored procedure cần gọi.
+        - *params: Các tham số truyền vào stored procedure.
+
+    Ví dụ:
+        call_stored_procedure("dev", "12345678x@X", "InsertTestData", "Alice", 22)
+        call_stored_procedure("dev", "12345678x@X", "UpdateUserAge", 5, 30)
     """
     try:
         conn = pymysql.connect(
@@ -66,18 +74,16 @@ def insert_user_data(user, password, name, age):
         )
 
         with conn.cursor() as cursor:
-            cursor.callproc("InsertTestData", (name, age))
-            result = cursor.fetchall()  # Lấy kết quả trả về
+            cursor.callproc(stored_proc_name, params)
+            result = cursor.fetchall()
 
-            if result and "NewID" in result[0]:
-                print(f"✅ Dữ liệu đã chèn thành công! ID: {result[0]['NewID']}")
+            if result:
+                print(f"✅ Stored Procedure '{stored_proc_name}' thực thi thành công! Kết quả: {result}")
             else:
-                print("⚠ Không có dữ liệu trả về!")
+                print(f"⚠ Stored Procedure '{stored_proc_name}' không trả về dữ liệu!")
 
         conn.commit()
     except pymysql.MySQLError as err:
-        print(f"❌ Lỗi khi chèn dữ liệu: {err}")
+        print(f"❌ Lỗi khi gọi stored procedure '{stored_proc_name}': {err}")
     finally:
         conn.close()
-
-

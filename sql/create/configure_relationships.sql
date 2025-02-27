@@ -67,7 +67,7 @@ ADD CONSTRAINT `FoodItemID_toppinggroupfooditem`
 ALTER TABLE `kioskapp`.`variantgroupfooditem`
 ADD CONSTRAINT `VariantGroupID_variantgroupfooditem`
   FOREIGN KEY (`VariantGroupID`)
-  REFERENCES `kioskapp`.`toppinggroup` (`ID`)
+  REFERENCES `kioskapp`.`variantgroup` (`ID`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION,
 ADD CONSTRAINT `FoodItemID_variantgroupfooditem`

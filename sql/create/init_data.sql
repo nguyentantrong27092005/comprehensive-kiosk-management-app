@@ -121,6 +121,44 @@ VALUES
 
 SELECT * FROM variant;
 
+INSERT INTO variantgroupfooditem (VariantGroupID, FoodItemID)
+SELECT vg.ID AS VariantGroupID
+	  ,fi.ID AS FoodItemID
+FROM fooditem fi
+INNER JOIN Category c
+ON c.ID = fi.CategoryID
+JOIN variantgroup vg
+WHERE c.Name = 'Đồ uống'
+AND vg.Name LIKE '%Đồ uống%';
+
+INSERT INTO variantgroupfooditem (VariantGroupID, FoodItemID)
+SELECT vg.ID AS VariantGroupID
+	  ,fi.ID AS FoodItemID
+FROM fooditem fi
+INNER JOIN Category c
+ON c.ID = fi.CategoryID
+JOIN variantgroup vg
+WHERE c.Name <> 'Đồ uống' AND c.Name <> 'Topping nước'
+AND vg.Name LIKE '%Thức ăn%';
+
+INSERT INTO variantgroupfooditem (VariantGroupID, FoodItemID)
+SELECT vg.ID AS VariantGroupID
+	  ,fi.ID AS FoodItemID
+FROM fooditem fi
+JOIN variantgroup vg
+WHERE fi.Name LIKE 'Khoai%'
+AND vg.Name LIKE '%Khoai]%';
+
+INSERT INTO variantgroupfooditem (VariantGroupID, FoodItemID)
+SELECT vg.ID AS VariantGroupID
+	  ,fi.ID AS FoodItemID
+FROM fooditem fi
+JOIN variantgroup vg
+WHERE fi.Name = 'Khoai chiên đặc biệt'
+AND vg.Name LIKE '%Khoai đặc biệt]%';
+
+SELECT * FROM variantgroupfooditem;
+
 INSERT INTO toppinggroup (Name)
 VALUES
 ('Gà'),

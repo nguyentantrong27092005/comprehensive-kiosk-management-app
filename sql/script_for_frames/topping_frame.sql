@@ -4,8 +4,8 @@ SELECT vg.ID #Mã nhóm chọn variant (variant là chọn đường, chọn đ�
 	  ,vg.IsRequired #Flag bắt buộc phải chọn
 	  ,vg.ViewType #dạng slider, radio button
       ,vg.HasPrice #variant có tính thêm tiền hay không
-FROM VariantGroupFoodItem vgfi
-INNER JOIN VariantGroup vg
+FROM variantgroupfooditem vgfi
+INNER JOIN variantgroup vg
     ON vg.ID = vgfi.VariantGroupID
 WHERE vgfi.FoodItemID = {Id_của_món_đang_được_chọn};
 
@@ -15,7 +15,7 @@ SELECT ID
 	  ,Value #các option bên trong của variant
       ,Price #giá của variant nếu có
       ,AdditionalCost #giá cost của variant
-FROM Variant
+FROM variant
 WHERE VariantGroupID = {variant_group_id từ câu query phía trên};
 
 
@@ -30,32 +30,34 @@ LIMIT 1; #1 món chỉ có 1 topping group
 /*Lấy dữ liệu cụ thể topping của ToppingGroup*/
 SELECT t.ID
 	  ,fi.Name
-	  ,fih.Price #Giá chưa giảm
+	  ,fh.Price #Giá chưa giảm
 	  ,CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price*(1-(p.Discount/100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice #Đã giải thích ở trên
+      ,fi.ImageURL
 FROM topping t
 INNER JOIN fooditem fi
     ON fi.ID = t.FoodItemID
-INNER JOIN fooditem_history fih
-    ON fi.ID = fih.FoodItemID
+INNER JOIN fooditem_history fh
+    ON fi.ID = fh.FoodItemID
 LEFT JOIN promotionfooditem pfi
     ON fi.ID = pfi.FoodItemID
-INNER JOIN promotion p
+LEFT JOIN promotion p
     ON p.ID = pfi.PromotionID
 WHERE t.ToppingGroupID = {ID của topping group đã được query ở câu trên};
 
 /*2 câu query cho topping ở trên có thể gộp như sau*/
 SELECT t.ID
 	,fi.Name
-	,fih.Price #Giá chưa giảm
+	,fh.Price #Giá chưa giảm
 	,CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price*(1-(p.Discount/100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice #Đã giải thích ở trên
+    ,fi.ImageURL
 FROM topping t
 INNER JOIN fooditem fi
     ON fi.ID = t.FoodItemID
-INNER JOIN fooditem_history fih
-    ON fi.ID = fih.FoodItemID
+INNER JOIN fooditem_history fh
+    ON fi.ID = fh.FoodItemID
 LEFT JOIN promotionfooditem pfi
     ON fi.ID = pfi.FoodItemID
-INNER JOIN promotion p
+LEFT JOIN promotion p
     ON p.ID = pfi.PromotionID
 WHERE t.ToppingGroupID = (
                             SELECT tg.ID 

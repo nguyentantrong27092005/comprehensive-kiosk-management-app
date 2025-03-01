@@ -11,29 +11,11 @@ INNER JOIN fooditem_history fh #Join với bảng lịch sử giá của món
     ON fi.ID = fh.FoodItemId
 LEFT JOIN promotionfooditem pfi
     ON fi.ID = pfi.FoodItemID
-LEFT JOIN promotion p
+LEFT JOIN (SELECT * FROM promotion WHERE IsEffective = True) p
     ON p.ID = pfi.PromotionID
-WHERE fi.IsFulltime = True #Được bán toàn thời gian
-AND fh.IsEffective = True #Giá hiện tại trong bảng lịch sử giá
-UNION #Kết hợp kết quả của 2 câu query, một bên là món bán toàn thời gian, một bên là món bán trong khung ngày giờ cố định.
-SELECT fi.ID
-    ,fi.Name
-    ,fi.IsBestSeller
-    ,fh.Price
-    ,CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price*(1-(p.Discount/100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice
-    ,fi.ImageURL
-    ,pfi.PromotionID
-FROM fooditem fi
-INNER JOIN fooditem_history fh
-    ON fi.id = fh.FoodItemId
-LEFT JOIN promotionfooditem pfi
-    ON fi.ID = pfi.FoodItemID
-LEFT JOIN promotion p
-    ON p.ID = pfi.PromotionID
-WHERE fi.IsFulltime = False
-AND fh.IsEffective = True #Giá hiện tại trong bảng lịch sử giá
-AND fi.Days LIKE CONCAT('%',CAST(WEEKDAY(current_timestamp) AS CHAR),'%') #Lấy món được bán trong ngày hôm đó
-AND current_time BETWEEN fi.AvailableStartTime AND fi.AvailableEndTime; #Lấy món được bán trong khung giờ hiện tại
+WHERE (fi.IsFulltime = True OR (fi.Days LIKE CONCAT('%',CAST(WEEKDAY(current_timestamp) AS CHAR),'%') #Lấy món được bán trong ngày hôm đó
+								AND current_time BETWEEN fi.AvailableStartTime AND fi.AvailableEndTime)) #Lấy món được bán trong khung giờ hiện tại
+AND fh.IsEffective = True;
 
 
 /*Lấy dữ liệu cho menu món ăn của một nhóm món cụ thể*/
@@ -49,31 +31,12 @@ INNER JOIN fooditem_history fh
     ON fi.ID = fh.FoodItemId
 LEFT JOIN promotionfooditem pfi
     ON fi.ID = pfi.FoodItemID
-LEFT JOIN promotion p
+LEFT JOIN (SELECT * FROM promotion WHERE IsEffective = True) p
     ON p.ID = pfi.PromotionID
-WHERE fi.IsFulltime = True
+WHERE (fi.IsFulltime = True OR (fi.Days LIKE CONCAT('%',CAST(WEEKDAY(current_timestamp) AS CHAR),'%') #Lấy món được bán trong ngày hôm đó
+								AND current_time BETWEEN fi.AvailableStartTime AND fi.AvailableEndTime)) #Lấy món được bán trong khung giờ hiện tại
 AND fh.IsEffective = True
-AND fi.CategoryID = {ID của nhóm món muốn lấy}  #Khi khách bấm vào một category cụ thể, ta phải catch CategoryID mà khách hàng chọn. Sau đó truyền vào chỗ này
-UNION
-SELECT fi.ID
-    ,fi.Name
-    ,fi.IsBestSeller
-    ,fh.Price
-    ,CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price*(1-(p.Discount/100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice
-    ,fi.ImageURL
-    ,pfi.PromotionID
-FROM fooditem fi
-INNER JOIN fooditem_history fh
-    ON fi.id = fh.FoodItemId
-LEFT JOIN promotionfooditem pfi
-    ON fi.ID = pfi.FoodItemID
-LEFT JOIN promotion p
-    ON p.ID = pfi.PromotionID
-WHERE fi.IsFulltime = False
-AND fh.IsEffective = True
-AND fi.Days LIKE CONCAT('%',CAST(WEEKDAY(current_timestamp) AS CHAR),'%')
-AND current_time BETWEEN fi.AvailableStartTime AND fi.AvailableEndTime
-AND fi.CategoryID = {ID của nhóm món muốn lấy}; #Khi khách bấm vào một category cụ thể, ta phải catch CategoryID mà khách hàng chọn. Sau đó truyền vào chỗ này
+AND fi.CategoryID = {ID của nhóm món muốn lấy};  #Khi khách bấm vào một category cụ thể, ta phải catch CategoryID mà khách hàng chọn. Sau đó truyền vào chỗ này
 
 /*Lấy dữ liệu cho nhóm món*/
 SELECT ID #ID của nhóm món

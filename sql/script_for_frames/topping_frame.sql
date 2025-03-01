@@ -40,9 +40,12 @@ INNER JOIN fooditem_history fh
     ON fi.ID = fh.FoodItemID
 LEFT JOIN promotionfooditem pfi
     ON fi.ID = pfi.FoodItemID
-LEFT JOIN promotion p
+LEFT JOIN (SELECT * FROM promotion WHERE IsEffective = True) p
     ON p.ID = pfi.PromotionID
-WHERE t.ToppingGroupID = {ID của topping group đã được query ở câu trên};
+WHERE t.ToppingGroupID = {ID của topping group đã được query ở câu trên}
+AND fh.IsEffective = True
+AND (fi.IsFulltime = True OR (fi.Days LIKE CONCAT('%',CAST(WEEKDAY(current_timestamp) AS CHAR),'%') #Lấy món được bán trong ngày hôm đó
+								AND current_time BETWEEN fi.AvailableStartTime AND fi.AvailableEndTime)); #Lấy món được bán trong khung giờ hiện tại
 
 /*2 câu query cho topping ở trên có thể gộp như sau*/
 SELECT t.ID
@@ -57,7 +60,7 @@ INNER JOIN fooditem_history fh
     ON fi.ID = fh.FoodItemID
 LEFT JOIN promotionfooditem pfi
     ON fi.ID = pfi.FoodItemID
-LEFT JOIN promotion p
+LEFT JOIN (SELECT * FROM promotion WHERE IsEffective = True) p
     ON p.ID = pfi.PromotionID
 WHERE t.ToppingGroupID = (
                             SELECT tg.ID 
@@ -66,4 +69,7 @@ WHERE t.ToppingGroupID = (
                                 ON tg.ID = tgfi.ToppingGroupID
                             WHERE tgfi.FoodItemID = {Id_của_món_đang_được_chọn}
                             LIMIT 1
-                        );
+                        )
+AND fh.IsEffective = True
+AND (fi.IsFulltime = True OR (fi.Days LIKE CONCAT('%',CAST(WEEKDAY(current_timestamp) AS CHAR),'%') #Lấy món được bán trong ngày hôm đó
+								AND current_time BETWEEN fi.AvailableStartTime AND fi.AvailableEndTime)); #Lấy món được bán trong khung giờ hiện tại

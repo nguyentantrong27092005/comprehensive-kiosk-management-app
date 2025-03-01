@@ -40,6 +40,7 @@ class DineSelectViewEx(GeneralView.GeneralView):
         # paymentSelectView.pushButton_back.clicked.connect(lambda: self.mainStackedWidget.removeWidget(paymentSelectView))
 
     def test(self):
+        """Code này để test cho dữ liệu giỏ hàng."""
         query = """
         SELECT fi.ID
               ,fi.Name

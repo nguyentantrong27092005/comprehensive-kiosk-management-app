@@ -24,8 +24,6 @@ class PaymentSelection(StyleFrame):  # Change QWidget to QFrame
         super().__init__(bg_color, border_color, parent)
 
         # Set fixed height to ensure the border appears
-        # self.setMinimumHeight(60)
-        # self.setMinimumWidth(140)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         # Create a layout for the buttons
@@ -60,7 +58,7 @@ class PaymentSelection(StyleFrame):  # Change QWidget to QFrame
         self.setLayout(layout)
 
 
-class DineSelectWidget(QWidget):
+class DineSelectWidget(QWidget): #Thiết kế dưới dạng QWidget để thêm vào frame chung của màn hình chung
     def __init__(self):
         super().__init__()
         self.setStyleSheet("font-family: Montserrat; font-size: 15px; background-color: #BD1906;")

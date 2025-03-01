@@ -38,6 +38,7 @@ class Image(qrcode.image.base.BaseImage):
 
 
 class PaymentCheckThread(QThread):
+    """Đây là class sử dụng Thread để chạy kiểm tra trạng thái của thanh toán concurrently với những hoạt động trên UI."""
     paymentReceived = pyqtSignal()  # Signal to emit when payment is successful
     paymentFailed = pyqtSignal()  # Signal for timeout
 
@@ -49,12 +50,12 @@ class PaymentCheckThread(QThread):
         self.elapsedTime = 0
 
     def run(self):
-        """Simulates checking payment status every 500ms."""
+        """Kiểm tra status của thanh toán mỗi ~2s"""
         while self.running and self.elapsedTime < self.timeout:
             startTime = time.perf_counter()
             time.sleep(2)
-            status = self.bankPaymentHandler.get_payment_status()  # Simulate API call delay
-            if status == "PAID":  # Simulate 20% chance of payment success
+            status = self.bankPaymentHandler.get_payment_status()
+            if status == "PAID":
                 self.paymentReceived.emit()
                 return
             elif status == "EXPIRED":
@@ -68,7 +69,7 @@ class PaymentCheckThread(QThread):
             self.paymentFailed.emit()
 
     def stop(self):
-        """Stops the thread."""
+        """Dừng thread"""
         self.running = False
 
 class BankQRViewEx(GeneralView.GeneralView):
@@ -85,7 +86,7 @@ class BankQRViewEx(GeneralView.GeneralView):
         self.paymentVLayout = QVBoxLayout(self.frame_chung)
         self.paymentVLayout.addWidget(self.bankQRView)
         self.paymentVLayout.setContentsMargins(0, 0, 0, 0)
-        self.count = 300
+        self.count = 300 #Mã có hiệu lực trong vòng 5'
         self.bankQRView.countdownTimerLabel.setText(self.secs_to_minsec(self.count))
         self.bankQRView.countdownTimer.timeout.connect(self.show_time)
 
@@ -99,6 +100,11 @@ class BankQRViewEx(GeneralView.GeneralView):
         self.paymentCheckThread.start()
 
     def on_payment_received(self):
+        """Hàm này sẽ được thực hiện khi check đơn hàng đã được thanh toán. Nó sẽ thực hiện các tác vụ sau:
+        - Update status vào db
+        - Reset data (bước này chỉ để test, thực tế nó sẽ thực hiện sau khi người dùng feedback)
+        - Chuyển sang màn hình thông báo giao dịch thành công.
+        - Huỷ màn hình hiện tại"""
         self.update_order_status(OrderStatus.inprogress.value)
         self.sharedData.reset_data()
         bankSuccessView = BankSuccessViewEx(self.mainStackedWidget, self.sharedData, self.db)
@@ -107,10 +113,15 @@ class BankQRViewEx(GeneralView.GeneralView):
         self.mainStackedWidget.removeWidget(self)
 
     def on_payment_timeout(self):
+        """Hàm này sẽ được thực hiện khi check đơn hàng đã được thanh toán. Nó sẽ thực hiện các tác vụ sau:
+        - Update status vào db
+        - Reset data
+        - Chuyển sang màn hình thông báo giao dịch thất bại.
+        - Huỷ màn hình hiện tại"""
         self.update_order_status(OrderStatus.cancelled.value)
         self.sharedData.reset_data()
-        bankFailedView = BankFailedViewEx(self.mainStackedWidget, self.sharedData, self.db, "Đã huỷ đơn hàng!",
-                                          "Bấm xác nhận để quay lại từ đầu.")
+        bankFailedView = BankFailedViewEx(self.mainStackedWidget, self.sharedData, self.db, "Thanh toán thất bại!",
+                                          "Mã đã hết hạn. Vui lòng đặt đơn hàng mới.")
         self.mainStackedWidget.addWidget(bankFailedView)
         self.mainStackedWidget.setCurrentWidget(bankFailedView)
         self.mainStackedWidget.removeWidget(self)
@@ -146,7 +157,7 @@ class BankQRViewEx(GeneralView.GeneralView):
         bankCancelDialog.exec()
 
     def stop_process(self):
-        """Stops the thread and timer when process ends."""
+        """Dừng toàn bộ thread và bộ đếm."""
         self.paymentCheckThread.stop()
         self.bankQRView.countdownTimer.stop()
 

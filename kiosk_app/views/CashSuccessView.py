@@ -1,15 +1,11 @@
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QApplication, QSpacerItem, QSizePolicy
+from PyQt6 import QtWidgets
 import os
 
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtWidgets import QApplication, QMainWindow, QSpacerItem, QSizePolicy
-from PyQt6 import QtCore, QtGui, QtWidgets
-import os
-import qrcode
-import datetime
 
-
-class CashSuccessWidget(QtWidgets.QWidget):
+class CashSuccessWidget(QtWidgets.QWidget): #Thiết kế dưới dạng QWidget để thêm vào frame chung của màn hình chung
     def __init__(self):
         super().__init__()
         self.setupUi()

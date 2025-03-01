@@ -1,15 +1,9 @@
-from typing import List
-
 import pymysql
 import os
 
 from dotenv import load_dotenv
+from kiosk_app.models.Order import Order
 
-from kiosk_app.models import Order
-from kiosk_app.models.FoodItem import FoodItem
-from kiosk_app.models.Order import OrderItem, Order
-from kiosk_app.models.ToppingVariant import Variant, Topping
-from kiosk_app.models.EnumClasses import OrderStatus, PaymentMethod
 
 
 class Database:
@@ -179,16 +173,11 @@ class Database:
             """
 
             orderDetailsData = [(orderInfo.id, orderItem.foodItem.id, orderItem.evoucherTangMonId, orderItem.foodItem.promotion_id, orderItem.quantity, orderItem.foodItem.price, orderItem.foodItem.discount, orderItem.note) for orderItem in orderDetails]
-            # orderDetailsData = [
-            #     (orderInfo.id, 1, None, 10.50),
-            #     (orderInfo.id, 2, 1, 79.50)
-            # ]
             cursor.executemany(orderDetailsQuery, orderDetailsData)
 
             #Get ids of inserted orderDetails
             lengthOrderDetails = len(orderDetailsData)
             print(cursor.lastrowid)
-            # orderDetailsIDs = [cursor.lastrowid - i for i in range(lengthOrderDetails-1, -1, -1)]
             orderDetailsIDs = [cursor.lastrowid + i for i in range(lengthOrderDetails)]
             print(orderDetailsIDs)
 

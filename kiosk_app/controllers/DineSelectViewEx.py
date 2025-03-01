@@ -15,6 +15,7 @@ class DineSelectViewEx(GeneralView.GeneralView):
         self.sharedData = sharedData
         self.db = db
         self.mainStackedWidget = mainStackedWidget
+        self.frame_ngang.setFixedHeight(0)
         self.dineSelectWidget = DineSelectWidget()
         self.dineVLayout = QVBoxLayout(self.frame_chung)
         self.dineVLayout.addWidget(self.dineSelectWidget)
@@ -28,6 +29,7 @@ class DineSelectViewEx(GeneralView.GeneralView):
         paymentSelectView = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
         self.mainStackedWidget.addWidget(paymentSelectView)
         self.mainStackedWidget.setCurrentWidget(paymentSelectView)
+        # paymentSelectView.pushButton_back.clicked.connect(lambda: self.mainStackedWidget.removeWidget(paymentSelectView))
 
     def choose_dine_in(self):
         self.sharedData.order.isDineIn = 1
@@ -35,6 +37,7 @@ class DineSelectViewEx(GeneralView.GeneralView):
         paymentSelectView = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
         self.mainStackedWidget.addWidget(paymentSelectView)
         self.mainStackedWidget.setCurrentWidget(paymentSelectView)
+        # paymentSelectView.pushButton_back.clicked.connect(lambda: self.mainStackedWidget.removeWidget(paymentSelectView))
 
     def test(self):
         query = """

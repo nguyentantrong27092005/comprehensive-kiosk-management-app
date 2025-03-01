@@ -9,7 +9,7 @@ import qrcode
 import datetime
 
 
-class BankQRWidget(QtWidgets.QWidget):
+class BankQRWidget(QtWidgets.QWidget): #Thiết kế dưới dạng QWidget để thêm vào frame chung của màn hình chung
     def __init__(self):
         super().__init__()
         self.setupUi()

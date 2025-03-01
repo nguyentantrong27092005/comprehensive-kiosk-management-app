@@ -1,6 +1,5 @@
 from common.sql_func import Database
 from kiosk_app.controllers.BankFailedViewEx import BankFailedViewEx
-# from kiosk_app.controllers.BankQRViewEx import BankQRViewEx
 from kiosk_app.models.EnumClasses import OrderStatus
 from kiosk_app.models.SharedDataModel import SharedDataModel
 from PyQt6.QtWidgets import QStackedWidget
@@ -8,7 +7,7 @@ from kiosk_app.views.BankCancelDialog import BankCancelDialog
 
 
 class BankCancelDialogEx(BankCancelDialog):
-    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database, bankQRViewEx):
+    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database, bankQRViewEx): #Tất cả màn hình đều cần truyền vào 3 biến: mainStackedWidget, sharedData, db
         super().__init__()
         self.mainStackedWidget = mainStackedWidget
         self.sharedData = sharedData

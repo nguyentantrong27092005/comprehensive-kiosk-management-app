@@ -1,11 +1,9 @@
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QHBoxLayout, QPushButton, QVBoxLayout, QSpacerItem, QSizePolicy, QFrame, QLabel, QLayout,
-    QStackedWidget,
+    QApplication, QWidget, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QFrame, QLabel
 )
 from .ClickableElement import ClickableFrame
-from . import (BankQRView, CashSuccessView)
 
 class StyleFrame(ClickableFrame):
     def __init__(self, bg_color, border_color, parent=None):
@@ -61,10 +59,10 @@ class PaymentSelection(StyleFrame):  # Change QWidget to QFrame
         self.setLayout(layout)
 
 
-class PaymentSelectWidget(QWidget):
+class PaymentSelectWidget(QWidget): #Thiết kế dưới dạng QWidget để thêm vào frame chung của màn hình chung
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("font-family: Montserrat; font-size: 15px; background-color: #BD1906;")
+        # self.setStyleSheet("font-family: Montserrat; font-size: 15px; background-color: #BD1906;")
         # Create the main layout
         self.vLayoutWhiteFrame = QVBoxLayout(self)
         self.hLayoutPaymentSelection = QHBoxLayout(self)

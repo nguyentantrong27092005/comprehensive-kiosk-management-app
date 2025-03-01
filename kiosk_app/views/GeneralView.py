@@ -10,7 +10,7 @@ class GeneralView(QtWidgets.QMainWindow):
     def setupUi(self):
         self.setObjectName("MainWindow")
         self.resize(478, 850)
-
+        self.setStyleSheet("font-family: Montserrat; font-size: 15px;")
         # widget trung tâm
         self.centralwidget = QtWidgets.QWidget()
         self.setCentralWidget(self.centralwidget)
@@ -40,7 +40,7 @@ class GeneralView(QtWidgets.QMainWindow):
         # nút quay lại
         self.pushButton_back = QtWidgets.QPushButton("Quay lại", self.frame_ngang)
         self.pushButton_back.setObjectName("pushButton_back")
-        self.pushButton_back.setIcon(QtGui.QIcon("C:/Users/ADMIN/Downloads/icon/3994376_arrow_back_left_navigation_previous_icon.png"))
+        self.pushButton_back.setIcon(QtGui.QIcon("kiosk_app/resources/images/ic_back.png"))
         self.pushButton_back.setIconSize(QtCore.QSize(25, 25))
         self.pushButton_back.setFlat(True) # bỏ viền ở ngoài của nút
         self.pushButton_back.setFont(QtGui.QFont("Segoe UI", 12, QtGui.QFont.Weight.Bold))

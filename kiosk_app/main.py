@@ -14,6 +14,7 @@ class MainWindow(QMainWindow):
 
         #Tạo widget chồng để tích hợp nhiều màn hình trên cùng 1 cửa sổ
         self.setWindowTitle('Kiosk Application')
+        self.resize(478, 850)
         self.mainStackedWidget = QStackedWidget()
         self.setCentralWidget(self.mainStackedWidget)
 

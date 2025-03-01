@@ -25,3 +25,4 @@ class CashSuccessViewEx(GeneralView.GeneralView):
 
     def back_to_beginning(self):
         self.mainStackedWidget.setCurrentIndex(0)
+        self.mainStackedWidget.removeWidget(self)

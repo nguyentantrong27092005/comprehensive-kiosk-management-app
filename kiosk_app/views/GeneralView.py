@@ -24,7 +24,7 @@ class GeneralView(QtWidgets.QMainWindow):
         self.label_image = QtWidgets.QLabel(parent=self.centralwidget)
         self.label_image.setObjectName("label_image")
         self.label_image.setMinimumSize(478, 150)
-        self.label_image.setPixmap(QtGui.QPixmap("C:/Users/ADMIN/Downloads/quang-cao-la-gi-peakads.jpg"))
+        self.label_image.setPixmap(QtGui.QPixmap("kiosk_app/resources/images/header_advertisement.png").scaled(478,150))
         self.label_image.setScaledContents(True)
         self.verticalLayout.addWidget(self.label_image)
 

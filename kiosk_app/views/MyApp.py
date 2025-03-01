@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow
-from kiosk_app.controllers.MainWindowEx import MainWindowEx
+from kiosk_app.controllers.PaymentSelectViewEx import MainWindowEx
 
 app=QApplication([])
 myWindow= MainWindowEx()

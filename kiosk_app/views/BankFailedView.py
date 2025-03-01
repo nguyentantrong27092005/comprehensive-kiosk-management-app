@@ -44,7 +44,7 @@ class BankFailedWidget(QtWidgets.QWidget):
         upperLowerSpacer = QSpacerItem(40, 100, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         middleSpacer = QSpacerItem(40, 60, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         self.failedIcon = QtWidgets.QLabel(self)
-        self.failedIcon.setPixmap(QPixmap("../resources/images/ic_failed.png"))
+        self.failedIcon.setPixmap(QPixmap("kiosk_app/resources/images/ic_failed.png"))
         self.failedIcon.setObjectName("failedIcon")
         self.failedIcon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.notificationTitle = QtWidgets.QLabel(self)

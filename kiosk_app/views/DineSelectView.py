@@ -1,10 +1,12 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QHBoxLayout, QPushButton, QVBoxLayout, QSpacerItem, QSizePolicy, QFrame, QLabel, QLayout,
+    QStackedWidget,
 )
+from kiosk_app.views.ClickableElement import ClickableFrame
 
-class StyleFrame(QFrame):
+class StyleFrame(ClickableFrame):
     def __init__(self, bg_color, border_color, parent=None):
         super().__init__(parent)
         self.setStyleSheet(f"""
@@ -16,7 +18,6 @@ class StyleFrame(QFrame):
                 """)
         self.setFrameShape(QFrame.Shape.Box)
         self.setFrameShadow(QFrame.Shadow.Plain)
-
 
 class PaymentSelection(StyleFrame):  # Change QWidget to QFrame
     def __init__(self, images, title, bg_color, border_color, parent=None):
@@ -36,12 +37,11 @@ class PaymentSelection(StyleFrame):  # Change QWidget to QFrame
             label = QLabel()
             label.setMargin(10)
             pixmap = QPixmap(img_path)  # Load the image
-            label.setPixmap(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio))  # Scale image to fit
-            label.setMinimumSize(60, 60)
+            label.setPixmap(pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio))  # Scale image to fit
             label.setMaximumSize(120, 120)
-            label.setScaledContents(True)  # Allow dynamic scaling
+            # label.setScaledContents(True)  # Allow dynamic scaling
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+            # label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
             label.setStyleSheet("border-width: 0px")
 
             layout.addWidget(label)
@@ -50,7 +50,7 @@ class PaymentSelection(StyleFrame):  # Change QWidget to QFrame
         label.setText(title)
         label.setStyleSheet("border-width: 0px; font-size: 12px")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        spacer = QSpacerItem(40, 20, QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Minimum)
+        spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         layout.addSpacerItem(spacer)
         layout.addWidget(label)
         layout.setStretch(0, 5)
@@ -60,33 +60,30 @@ class PaymentSelection(StyleFrame):  # Change QWidget to QFrame
         self.setLayout(layout)
 
 
-class Payment(QWidget):
+class DineSelectWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setStyleSheet("font-family: Montserrat; font-size: 15px; background-color: #BD1906;")
         # Create the main layout
-        self.vLayoutRedFrame = QVBoxLayout(self)
+        self.vLayoutWhiteFrame = QVBoxLayout(self)
         self.hLayoutPaymentSelection = QHBoxLayout(self)
         self.vLayoutTitlePayment = QVBoxLayout(self)
 
-        self.mainLayout = QHBoxLayout(self)
-
-
         # Create two button sections using the reusable widget
-        left_section = PaymentSelection(["../resources/images/bi_cash-coin.png", "../resources/images/icon_cashregister.png"], "Tiền mặt","lightblue", "navy")
-        right_section = PaymentSelection(["../resources/images/banktransfer.png", "../resources/images/icon_scanqrcode.png"], "Chuyển khoản","lightgreen", "darkgreen")
+        self.left_section = PaymentSelection(["kiosk_app/resources/images/ic_dineout.png"], "Mang về","lightblue", "navy")
+        self.right_section = PaymentSelection(["kiosk_app/resources/images/ic_dinein.png"], "Ăn tại chỗ","lightgreen", "darkgreen")
 
         # Add a spacer between the sections
         spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
 
         # Add sections to the main layout
-        self.hLayoutPaymentSelection.addWidget(left_section)
+        self.hLayoutPaymentSelection.addWidget(self.left_section)
         self.hLayoutPaymentSelection.addSpacerItem(spacer)
-        self.hLayoutPaymentSelection.addWidget(right_section)
+        self.hLayoutPaymentSelection.addWidget(self.right_section)
 
 
         self.paymentTitle = QLabel()
-        self.paymentTitle.setText("Vui lòng chọn hình thức thanh toán")
+        self.paymentTitle.setText("Vui lòng chọn hình thức phục vụ")
         self.paymentTitle.setStyleSheet("font-weight: 700;")
         self.paymentTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -95,25 +92,19 @@ class Payment(QWidget):
         self.vLayoutTitlePayment.addSpacerItem(spacer)
         self.vLayoutTitlePayment.addLayout(self.hLayoutPaymentSelection)
         self.vLayoutTitlePayment.setStretch(1, 7)
-        self.vLayoutTitlePayment.setContentsMargins(50, 50, 50, 50)
+        self.vLayoutTitlePayment.setContentsMargins(50, 100, 50, 100)
         self.whiteFrameMainLayout = StyleFrame("white", "white")
         self.whiteFrameMainLayout.setLayout(self.vLayoutTitlePayment)
-        self.vLayoutWhiteFrame = QVBoxLayout(self)
         self.vLayoutWhiteFrame.addWidget(self.whiteFrameMainLayout)
-        self.redFrameMainLayout = QFrame(self)
-        self.redFrameMainLayout.setStyleSheet("background-color: #BD1906;")
-        # self.redFrameMainLayout
-        self.redFrameMainLayout.setLayout(self.vLayoutWhiteFrame)
-        self.vLayoutRedFrame.addWidget(self.redFrameMainLayout)
-        self.vLayoutRedFrame.setContentsMargins(26, 64, 26, 64)
-        # self.mainLayout.addWidget(self.redFrameMainLayout)
-        self.setLayout(self.vLayoutRedFrame)
-        self.setWindowTitle("PyQt6 - Modular Button Sections with Borders")
+        self.vLayoutWhiteFrame.setContentsMargins(35, 70, 35, 70)
+        self.setLayout(self.vLayoutWhiteFrame)
         self.resize(478, 592)
         self.setMinimumSize(478, 592)
 
+
+
 if __name__ == '__main__':
     app = QApplication([])
-    window = Payment()
+    window = DineSelectWidget()
     window.show()
     app.exec()

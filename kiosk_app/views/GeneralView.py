@@ -1,14 +1,19 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
+from dotenv import load_dotenv, dotenv_values
 
+class GeneralView(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setupUi()
+        self.env_values = load_dotenv(dotenv_path='.env')
 
-class general_ui(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(478, 850)
+    def setupUi(self):
+        self.setObjectName("MainWindow")
+        self.resize(478, 850)
 
         # widget trung tâm
-        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
-        MainWindow.setCentralWidget(self.centralwidget)
+        self.centralwidget = QtWidgets.QWidget()
+        self.setCentralWidget(self.centralwidget)
 
         # layout chính (dọc), gồm 3 phần
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -47,7 +52,6 @@ class general_ui(object):
 
         self.verticalLayout.addWidget(self.frame_ngang) # thêm layout ngang vào layout chính
 
-
         # tạo khung chung chứa nội dung
         self.frame_chung = QtWidgets.QFrame(parent=self.centralwidget)
         self.frame_chung.setObjectName("frame_chung")
@@ -56,11 +60,18 @@ class general_ui(object):
         self.verticalLayout.addWidget(self.frame_chung)
 
         # thiết lập các ngôn ngữ và kết nối các slot
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(self)
+        QtCore.QMetaObject.connectSlotsByName(self)
 
     def retranslateUi(self, MainWindow):
         # thiết lập văn bản cho các widget
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton_back.setText(_translate("MainWindow", "Quay lại"))
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    window = GeneralView()
+    window.show()
+    sys.exit(app.exec())

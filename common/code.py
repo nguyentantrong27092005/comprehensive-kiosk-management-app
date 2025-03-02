@@ -1,3 +1,6 @@
+import os
+from random import random
+
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 class UI_noluck(QtWidgets.QDialog):
@@ -14,7 +17,10 @@ class UI_noluck(QtWidgets.QDialog):
 
         # Hình ảnh minigame phần no luck
         self.label_image_main = QtWidgets.QLabel(self)
-        self.label_image_main.setPixmap(QtGui.QPixmap("D:/ktlt_đồ án/minigame-choi-vui-trung-lon-01590979733.jpg"))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "bannermngame.png")
+        pixmap = QtGui.QPixmap(image_path)
+        self.label_image_main.setPixmap(pixmap)
         self.label_image_main.setFixedHeight(150)
         self.label_image_main.setScaledContents(True)
         self.label_image_main.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -25,8 +31,9 @@ class UI_noluck(QtWidgets.QDialog):
 
         # Ảnh chúc may mắn lần sau (Better Luck Next Time)
         self.label_image_noluck = QtWidgets.QLabel(self)
-        pixmap = QtGui.QPixmap(
-            r"D:\hoccode\QT Designer\TEST\doanktlt\anh\pngtree-better-luck-next-time-setback-fail-png-image_10561842.png")
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "lucknext.png")
+        pixmap = QtGui.QPixmap(image_path)
         self.label_image_noluck.setPixmap(pixmap)
         self.label_image_noluck.setScaledContents(True)
         self.label_image_noluck.setFixedSize(250, 150)  # Điều chỉnh kích thước ảnh
@@ -55,12 +62,12 @@ class UI_noluck(QtWidgets.QDialog):
         button_layout = QtWidgets.QVBoxLayout()
 
         self.pushButton_gotocart = QtWidgets.QPushButton("Đi tới giỏ hàng", self)
-        self.pushButton_gotocart.setStyleSheet("background-color: red; color: white; font-weight: bold")
+        self.pushButton_gotocart.setStyleSheet("background-color: red; color: white; font-weight: bold; font-size: 15px")
         self.pushButton_gotocart.setFixedSize(150, 40)
         self.pushButton_gotocart.clicked.connect(self.accept)
 
         self.pushButton_back = QtWidgets.QPushButton("Bỏ qua", self)
-        self.pushButton_back.setStyleSheet("background-color: red; color: white; font-weight: bold")
+        self.pushButton_back.setStyleSheet("background-color: red; color: white; font-weight: bold; font-size: 15px")
         self.pushButton_back.setFixedSize(150, 40)
         self.pushButton_back.clicked.connect(self.reject)
 
@@ -69,9 +76,8 @@ class UI_noluck(QtWidgets.QDialog):
 
         layout.addLayout(button_layout)
 
-
 class UI_luck(QtWidgets.QDialog):
-    """Cửa sổ hiển thị kết quả mở hộp quà"""
+    """Cửa sổ hiển thị kết quả mở trúng voucher"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -85,7 +91,10 @@ class UI_luck(QtWidgets.QDialog):
 
         # Hình ảnh minigame phần may mắn
         self.label_image_luck = QtWidgets.QLabel(self)
-        self.label_image_luck.setPixmap(QtGui.QPixmap("D:\ktlt_đồ án\minigame-choi-vui-trung-lon-01590979733.jpg"))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "bannermngame.png")
+        pixmap = QtGui.QPixmap(image_path)
+        self.label_image_luck.setPixmap(pixmap)
         self.label_image_luck.setScaledContents(True)
         self.label_image_luck.setFixedHeight(150)
         layout_doc.addWidget(self.label_image_luck)
@@ -98,7 +107,10 @@ class UI_luck(QtWidgets.QDialog):
 
         # Hình ảnh mã voucher
         self.label_image_voucher = QtWidgets.QLabel()
-        self.label_image_voucher.setPixmap(QtGui.QPixmap("D:\ktlt_đồ án\images.png"))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "voucher.png")
+        pixmap = QtGui.QPixmap(image_path)
+        self.label_image_voucher.setPixmap(pixmap)
         self.label_image_voucher.setScaledContents(True)
         self.label_image_voucher.setFixedHeight(150)
         layout_doc.addWidget(self.label_image_voucher)
@@ -129,84 +141,89 @@ class UI_luck(QtWidgets.QDialog):
         layout_doc.addLayout(layout_doc2)
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setWindowTitle("Hộp Quà May Mắn")
-        MainWindow.setFixedSize(398, 708)
+        """Màn hình Minigame chính"""
+        def setupUi(self, MainWindow):
+            MainWindow.setWindowTitle("Hộp Quà May Mắn")
+            MainWindow.setFixedSize(398, 708)
 
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        MainWindow.setCentralWidget(self.centralwidget)
+            self.centralwidget = QtWidgets.QWidget(MainWindow)
+            MainWindow.setCentralWidget(self.centralwidget)
 
-        # Đặt nền trắng cho toàn bộ giao diện
-        MainWindow.setStyleSheet("background-color: white;")
-        self.centralwidget.setStyleSheet("background-color: white;")
+            # Đặt nền trắng cho toàn bộ giao diện
+            MainWindow.setStyleSheet("background-color: white;")
+            self.centralwidget.setStyleSheet("background-color: white;")
 
-        main_layout = QtWidgets.QVBoxLayout(self.centralwidget)
+            main_layout = QtWidgets.QVBoxLayout(self.centralwidget)
 
-        # Ảnh tiêu đề
-        self.label_image = QtWidgets.QLabel()
-        self.label_image.setPixmap(
-            QtGui.QPixmap("D:/hoccode/QT Designer/TEST/doanktlt/anh/subiz-minigame-la-gi-e1704609883891.jpg"))
-        self.label_image.setScaledContents(True)
-        self.label_image.setFixedHeight(150) #Size cho ảnh minigame
-        main_layout.addWidget(self.label_image)
+            # Ảnh tiêu đề
+            self.label_image = QtWidgets.QLabel()
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "img_bannerminigame.png")
+            pixmap = QtGui.QPixmap(image_path)
+            self.label_image.setPixmap(pixmap)
+            self.label_image.setScaledContents(True)
+            self.label_image.setFixedHeight(150)  # Size cho ảnh minigame
+            main_layout.addWidget(self.label_image)
 
-        # Tiêu đề chính
-        # Layout chứa nút và tiêu đề
-        button_layout1 = QtWidgets.QHBoxLayout()
+            # Tiêu đề chính
+            # Layout chứa nút và tiêu đề
+            button_layout1 = QtWidgets.QHBoxLayout()
 
-        # Nút quay lại
-        self.button_back = QtWidgets.QPushButton()
-        pixmap = QtGui.QPixmap(
-            r"D:\hoccode\QT Designer\TEST\doanktlt\anh\png-clipart-button-question-mark-computer-icons-check-mark-back-button-text-black-thumbnail.png")
-        icon = QtGui.QIcon(pixmap)
-        self.button_back.setIcon(icon)
-        self.button_back.setIconSize(QtCore.QSize(30, 30))
-        button_layout1.addWidget(self.button_back)
+            # Nút quay lại
+            self.button_back = QtWidgets.QPushButton()
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            icon_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "img_backbutton.png")
+            self.button_back.setIcon(QtGui.QIcon(icon_path))
+            self.button_back.setIconSize(QtCore.QSize(30, 30))
+            button_layout1.addWidget(self.button_back)
 
-        # khoảng trống giữa nút và tiêu đề
-        spacer = QtWidgets.QSpacerItem(5, 5, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        button_layout1.addItem(spacer)
+            # khoảng trống giữa nút và tiêu đề
+            spacer = QtWidgets.QSpacerItem(5, 5, QtWidgets.QSizePolicy.Policy.Fixed,
+                                               QtWidgets.QSizePolicy.Policy.Minimum)
+            button_layout1.addItem(spacer)
 
-        # Tiêu đề chính
-        self.label_title = QtWidgets.QLabel("Hộp Quà May Mắn")
-        self.label_title.setStyleSheet("font-size: 20px; font-weight: bold; color: black;")
-        self.label_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignVCenter)  # Căn giữa theo chiều dọc
-        self.label_title.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
-        button_layout1.addWidget(self.label_title)
+            # Tiêu đề chính
+            self.label_title = QtWidgets.QLabel("Hộp Quà May Mắn")
+            self.label_title.setStyleSheet("font-size: 20px; font-weight: bold; color: black;")
+            self.label_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignVCenter)  # Căn giữa theo chiều dọc
+            self.label_title.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,
+                                               QtWidgets.QSizePolicy.Policy.Preferred)
+            button_layout1.addWidget(self.label_title)
 
-        main_layout.addLayout(button_layout1)
+            main_layout.addLayout(button_layout1)
 
-        # grid_ Layout chứa 6 hộp quà
-        grid_layout = QtWidgets.QGridLayout()
-        grid_layout.setSpacing(20)
+            # grid_ Layout chứa 8 hộp quà
+            grid_layout = QtWidgets.QGridLayout()
+            grid_layout.setSpacing(20)
 
-        image_path = "D:/hoccode/QT Designer/TEST/doanktlt/anh/hop-qua-vivo-tai-nghe-op-lung-mieng-dan-600x600.jpg"
-        self.boxes = []
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            icon_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "img_hopqua.png")
 
-        for i in range(8):
-            button = QtWidgets.QPushButton()
-            button.setFixedSize(100, 100)
-            button.setStyleSheet(f"border-image: url({image_path}); border-radius: 10px;")
+            self.boxes = []
 
-            # Hộp quà số 0, 2, 4 gọi open_gift()
-            if i%2 ==0:
-                button.clicked.connect(lambda _, x=i: self.open_gift(x))
-            # Hộp quà số 1, 3, 5 gọi open_gift_1()
+            for i in range(8):
+                button = QtWidgets.QPushButton()
+                button.setFixedSize(100, 100)
+                button.setIcon(QtGui.QIcon(icon_path))
+                button.setIconSize(QtCore.QSize(80, 80))  # Hộp quà nhỏ hơn button
+
+                # Kết nối nút với hàm xử lý khi nhấn
+                button.clicked.connect(lambda _, idx_box=i: self.open_gift(idx_box))
+
+                self.boxes.append(button)
+                grid_layout.addWidget(button, i // 2, i % 2)
+
+            main_layout.addLayout(grid_layout)
+
+        # Hàm mở hộp quà ra
+        def open_gift(self, index):
+            if index in [1, 3, 5, 7]:  # Hộp quà 1, 2, 3, 4 (chỉ số từ 0)
+                dialog = UI_noluck()
             else:
-                button.clicked.connect(lambda _, x=i: self.open_gift_1(x))
+                dialog = UI_luck()
 
-            self.boxes.append(button)
-            grid_layout.addWidget(button, i // 2, i % 2)  # 2 hàng, 3 cột
+            dialog.exec()
 
-        main_layout.addLayout(grid_layout)
-
-    def open_gift(self, box_number):
-        dialog = UI_luck(self.centralwidget)
-        dialog.exec()
-
-    def open_gift_1(self, box_number):
-        dialog = UI_noluck(self.centralwidget)
-        dialog.exec()
 
 if __name__ == "__main__":
     import sys

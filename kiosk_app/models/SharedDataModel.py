@@ -9,7 +9,7 @@ class SharedDataModel(QObject):
         self.order: Order = Order()
         self.selected_item = None
 
-    def set_selected_item(self, item):
+    def set_selected_item(self, item): # id
         """Sử dụng hàm này để update id của object vừa được bấm vào. Ví dụ: FoodItemID của món được chọn trên menu"""
         self.selected_item = item
         self.data_updated.emit()  # Notify listeners

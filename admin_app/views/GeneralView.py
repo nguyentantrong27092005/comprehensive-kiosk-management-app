@@ -21,7 +21,7 @@ class GeneralView(QtWidgets.QMainWindow):
 
         #---frame header
         self.frameHeader = QtWidgets.QFrame(self.centralwidget)
-        self.frameHeader.setMinimumSize(1280, 60)
+        # self.frameHeader.setMinimumSize(1280, 60)
         self.layoutHeader = QtWidgets.QHBoxLayout(self.frameHeader)
         self.verticalLayout.addWidget(self.frameHeader)
 
@@ -47,7 +47,7 @@ class GeneralView(QtWidgets.QMainWindow):
 
         #---Bottom Frame
         self.frameBottom = QtWidgets.QFrame(self.centralwidget)
-        self.frameBottom.setMinimumSize(1280, 660)
+        # self.frameBottom.setMinimumSize(1280, 660)
         self.gLayout = QtWidgets.QGridLayout(self.frameBottom)
         self.gLayout.setContentsMargins(0, 0, 0, 0)
         self.gLayout.setVerticalSpacing(0)
@@ -56,7 +56,7 @@ class GeneralView(QtWidgets.QMainWindow):
 
         # 1. Navigation
         self.frameNavigation = QtWidgets.QFrame(self.frameBottom)
-        self.frameNavigation.setMinimumSize(200, 660)
+        # self.frameNavigation.setMinimumSize(200, 660)
         self.frameNavigation.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frameNavigation.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
 
@@ -98,7 +98,7 @@ class GeneralView(QtWidgets.QMainWindow):
         self.gLayout.addWidget(self.frameNavigation, 0, 0, 2, 1)
         # 2. Thanh chức năng
         self.frameFunc = QtWidgets.QFrame(self.frameBottom)
-        self.frameFunc.setMinimumSize(1080, 60)
+        # self.frameFunc.setMinimumSize(1080, 60)
 
         self.hLayoutFunc = QtWidgets.QHBoxLayout(self.frameFunc)
         self.hLayoutFunc.setContentsMargins(10, 12, 10, 12)
@@ -142,10 +142,12 @@ class GeneralView(QtWidgets.QMainWindow):
 
         # 3. Content
         self.frameContent = QtWidgets.QFrame(self.frameBottom)
-        self.frameContent.setMinimumSize(1080, 600)
+        # self.frameContent.setMinimumSize(1080, 600)
         self.gLayout.addWidget(self.frameContent, 1, 1, 1, 1 )
 
         # thiết lập các ngôn ngữ và kết nối các slot
+        self.gLayout.setRowStretch(0, 1)
+        self.gLayout.setRowStretch(1, 11)
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
         self.setStyleSheetGeneral()

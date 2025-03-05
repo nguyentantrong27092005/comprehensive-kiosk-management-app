@@ -24,7 +24,7 @@ class OrderItem:
 class Order:
     """Đây là class quản lý giỏ hàng, đơn hàng."""
     def __init__(self):
-        self.id = None #cập nhật ID sau khi đã submit order vào database
+        self.id =None #cập nhật ID sau khi đã submit order vào database
         self.paymentMethod: PaymentMethod = PaymentMethod.cash #Sử dụng enum để pick ra giá trị dạng số của payment method (VD: tiền mặt là cash -> số 1)
         self.isDineIn = True
         self.totalAmount = 0

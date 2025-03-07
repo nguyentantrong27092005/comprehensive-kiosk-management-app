@@ -1,0 +1,88 @@
+QLabel {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 400;
+    color: black;
+}
+
+QLineEdit {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 400;
+    color: black;
+}
+
+QTextEdit {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 400;
+    color: black;
+}
+
+/*.Button*/
+QPushButton {
+    font-family: Montserrat;
+    color: white;
+    background-color: #BD1906;
+    font-weight: 700;
+    font-size: 20px;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.body {
+    font-size: 12px;
+}
+
+.body.bold {
+    font-weight: 700;
+}
+
+.h1 {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.h2 {
+    font-size: 13px;
+}
+
+/*.Menu Frame*/
+.menu-category {
+    color: #BD1906;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/*.Topping Frame*/
+.topping-heading {
+    color: white;
+    font-weight: 700;
+    font-size: 20px;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.topping-amount {
+    color: #BD1906;
+    font-weight: 700;
+    font-size: 25px;
+}
+
+/*.Cart Frame*/
+.cart-note {
+    color: #8A8A8A;
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.cart-price {
+    color: #BD1906;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/*.Payment Frame*/
+.cart-note {
+    color: #8A8A8A;
+    font-size: 15px;
+    font-weight: 500;
+}

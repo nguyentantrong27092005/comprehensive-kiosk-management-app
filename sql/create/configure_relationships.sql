@@ -67,7 +67,7 @@ ADD CONSTRAINT `FoodItemID_toppinggroupfooditem`
 ALTER TABLE `kioskapp`.`variantgroupfooditem`
 ADD CONSTRAINT `VariantGroupID_variantgroupfooditem`
   FOREIGN KEY (`VariantGroupID`)
-  REFERENCES `kioskapp`.`toppinggroup` (`ID`)
+  REFERENCES `kioskapp`.`variantgroup` (`ID`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION,
 ADD CONSTRAINT `FoodItemID_variantgroupfooditem`
@@ -76,11 +76,6 @@ ADD CONSTRAINT `FoodItemID_variantgroupfooditem`
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
 ALTER TABLE `kioskapp`.`promotionfooditem`
-ADD CONSTRAINT `PromotionID_promotionfooditem`
-  FOREIGN KEY (`PromotionID`)
-  REFERENCES `kioskapp`.`toppinggroup` (`ID`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
 ADD CONSTRAINT `FoodItemID_promotionfooditem`
   FOREIGN KEY (`FoodItemID`)
   REFERENCES `kioskapp`.`fooditem` (`ID`)
@@ -100,7 +95,7 @@ ADD CONSTRAINT `VariantGroupID_variant`
   ON UPDATE NO ACTION;
 ALTER TABLE `kioskapp`.`topping`
 ADD CONSTRAINT `ToppingGroup_topping`
-  FOREIGN KEY (`ToppingGroup`)
+  FOREIGN KEY (`ToppingGroupID`)
   REFERENCES `kioskapp`.`toppinggroup` (`ID`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION,
@@ -130,5 +125,16 @@ ADD CONSTRAINT `OrderDetailsID_orderdetailstopping`
 ADD CONSTRAINT `ToppingID_orderdetailstopping`
   FOREIGN KEY (`ToppingID`)
   REFERENCES `kioskapp`.`topping` (`ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+ALTER TABLE `kioskapp`.`orderdetailsvariant`
+ADD CONSTRAINT `OrderDetailsID_orderdetailsvariant`
+  FOREIGN KEY (`OrderDetailsID`)
+  REFERENCES `kioskapp`.`orderdetails` (`ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `VariantID_orderdetailsvariant`
+  FOREIGN KEY (`VariantID`)
+  REFERENCES `kioskapp`.`variant` (`ID`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;

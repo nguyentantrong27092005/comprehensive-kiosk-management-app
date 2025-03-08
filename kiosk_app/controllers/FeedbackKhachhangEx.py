@@ -1,7 +1,7 @@
 import sys
 from PyQt6 import QtWidgets
 import pymysql
-from kiosk_app.views.FeedbackKhachhang import MainWindow
+from kiosk_app.views.FeedbacKhachhangView import MainWindow
 from kiosk_app.models.Order import Order
 from kiosk_app.models.SharedDataModel import SharedDataModel
 from kiosk_app.controllers.CashSuccessViewEx import CashSuccessViewEx

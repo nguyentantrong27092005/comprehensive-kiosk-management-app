@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS `kioskapp`.`order` (
   `TotalPrice` INT NULL,
   `TotalAmount` INT NULL,
   `EVoucherDiscount` INT NULL,
+  `CustomerVote` INT NULL,
+  `ReasonVote` VARCHAR(512) NULL,
   `Status` ENUM('unpaid', 'in progress', 'done', 'cancelled') NULL,
   `CreateAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `UpdateAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

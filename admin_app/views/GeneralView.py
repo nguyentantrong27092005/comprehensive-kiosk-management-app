@@ -9,7 +9,7 @@ class GeneralView(QtWidgets.QMainWindow):
 
     def setupUi(self):
         self.setObjectName("MainWindow")
-        self.resize(1080, 720)
+        self.resize(1280, 720)
         # widget trung tâm
         self.centralwidget = QtWidgets.QWidget()
         self.setCentralWidget(self.centralwidget)
@@ -56,7 +56,6 @@ class GeneralView(QtWidgets.QMainWindow):
 
         # 1. Navigation
         self.frameNavigation = QtWidgets.QFrame(self.frameBottom)
-        # self.frameNavigation.setMinimumSize(200, 660)
         self.frameNavigation.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frameNavigation.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
 
@@ -66,27 +65,27 @@ class GeneralView(QtWidgets.QMainWindow):
         #1.1 Tổng doanh thu
         self.pushButtonTotalRevenue = QtWidgets.QPushButton()
         self.pushButtonTotalRevenue.setText("Tổng doanh thu")
-        self.pushButtonTotalRevenue.setMinimumHeight(42)
+        self.pushButtonTotalRevenue.setMinimumHeight(48)
         #1.2. Tổng lợi nhuận
         self.pushButtonTotalProfit = QtWidgets.QPushButton()
         self.pushButtonTotalProfit.setText("Tổng lợi nhuận")
-        self.pushButtonTotalProfit.setMinimumHeight(42)
+        self.pushButtonTotalProfit.setMinimumHeight(48)
         #1.3. Chuơng trình khuyến mãi
         self.pushButtonCTKM = QtWidgets.QPushButton()
         self.pushButtonCTKM.setText("Chương trình khuyến mãi")
-        self.pushButtonCTKM.setMinimumHeight(42)
+        self.pushButtonCTKM.setMinimumHeight(48)
         #1.4. Mặt hàng bán chạy
         self.pushButtonMHBC = QtWidgets.QPushButton()
         self.pushButtonMHBC.setText("Mặt hàng bán chạy")
-        self.pushButtonMHBC.setMinimumHeight(42)
+        self.pushButtonMHBC.setMinimumHeight(48)
         #1.5. Phương thức thanh toán
         self.pushButtonPaymentMethod = QtWidgets.QPushButton()
         self.pushButtonPaymentMethod.setText("Phương thức thanh toán")
-        self.pushButtonPaymentMethod.setMinimumHeight(42)
+        self.pushButtonPaymentMethod.setMinimumHeight(48)
         #1.6. Hoá đơn
         self.pushButtonInvoice = QtWidgets.QPushButton()
         self.pushButtonInvoice.setText("Hoá đơn")
-        self.pushButtonInvoice.setMinimumHeight(42)
+        self.pushButtonInvoice.setMinimumHeight(48)
         ###
         self.layoutNavigation.addWidget(self.pushButtonTotalRevenue)
         self.layoutNavigation.addWidget(self.pushButtonTotalProfit)
@@ -98,7 +97,6 @@ class GeneralView(QtWidgets.QMainWindow):
         self.gLayout.addWidget(self.frameNavigation, 0, 0, 2, 1)
         # 2. Thanh chức năng
         self.frameFunc = QtWidgets.QFrame(self.frameBottom)
-        # self.frameFunc.setMinimumSize(1080, 60)
 
         self.hLayoutFunc = QtWidgets.QHBoxLayout(self.frameFunc)
         self.hLayoutFunc.setContentsMargins(10, 12, 10, 12)
@@ -162,6 +160,7 @@ class GeneralView(QtWidgets.QMainWindow):
         self.lineEditDate.setStyleSheet("border: 1px solid #000000;")
         self.pushButtonExport.setStyleSheet("background-color: #bd1906; color: #eeeeee; border-radius: 10px; font-weight: bold;")
         self.frameNavigation.setStyleSheet('font-weight: bold; border: 1px solid #EEEEEE; border-radius: 6px ')
+
         self.pushButtonTotalRevenue.setStyleSheet("text-align: left; padding-left: 12px; border: None")
         self.pushButtonTotalProfit.setStyleSheet("text-align: left; padding-left: 12px; border: None ")
         self.pushButtonCTKM.setStyleSheet("text-align: left; padding-left: 12px; border: None")
@@ -175,9 +174,3 @@ class GeneralView(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "App quản lý Kiosk"))
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    window = GeneralView()
-    window.show()
-    sys.exit(app.exec())

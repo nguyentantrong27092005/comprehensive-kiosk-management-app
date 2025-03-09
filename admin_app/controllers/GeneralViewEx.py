@@ -1,10 +1,9 @@
-import sys
-from PyQt6.QtWidgets import QVBoxLayout, QCalendarWidget, QPushButton, QFrame, QGridLayout
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QCalendarWidget, QPushButton, QFrame, QGridLayout
 from PyQt6.QtGui import QTextCharFormat, QBrush, QColor
 from PyQt6.QtCore import QDate
 
-from PyQt6.QtWidgets import QApplication
-from PyQt6.uic.properties import QtWidgets
+
 
 from admin_app.views.GeneralView import GeneralView
 
@@ -14,7 +13,6 @@ class GeneralViewEx(GeneralView):
         super().__init__()
         self.setupUi()
         self.lineEditDate.setPlaceholderText("Chọn thời gian")
-        # self.calendar = None
         self.lineEditDate.setReadOnly(True)
         self.selected_dates = [] # list ngày được chọn
 
@@ -144,11 +142,17 @@ class GeneralViewEx(GeneralView):
                                     QPushButton:pressed {
                                         background-color: #ffffff;
                                     }
-                                """)
+                                    QCalendarWidget QTableView {
+                                        font-size: 8px;
+                                    }
+                                            """)
         self.calendarLayout.addWidget(self.calendar, 0, 0, 1, 2)
+        self.calendarLayout.setAlignment(self.calendar, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.calendarLayout.addWidget(self.cancel_button, 1, 0, 1, 1)
         self.calendarLayout.addWidget(self.select_button, 1, 1, 1, 1)
-        self.calendarFrame.setFixedSize(300, 307)
+        self.calendarFrame.setFixedSize(300, 315)
+        self.calendarLayout.setContentsMargins(0, 0, 0, 0)
+
         self.calendarFrame.move(200, 116)
         self.lineEditDate.mousePressEvent = lambda event: self.showCalendar(event)
 
@@ -212,10 +216,10 @@ class GeneralViewEx(GeneralView):
     def showCalendar(self, event):
         self.calendarFrame.show()
 
-app = QApplication.instance()
-if app is None:
-    app = QApplication(sys.argv)
-w = GeneralViewEx()
-w.show()
-sys.exit(app.exec())
+# app = QApplication.instance()
+# if app is None:
+#     app = QApplication(sys.argv)
+# w = GeneralViewEx()
+# w.show()
+# sys.exit(app.exec())
 

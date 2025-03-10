@@ -1,5 +1,7 @@
+import sys
+
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import QCalendarWidget, QPushButton, QFrame, QGridLayout
+from PyQt6.QtWidgets import QCalendarWidget, QPushButton, QFrame, QGridLayout, QApplication
 from PyQt6.QtGui import QTextCharFormat, QBrush, QColor
 from PyQt6.QtCore import QDate
 
@@ -153,16 +155,17 @@ class GeneralViewEx(GeneralView):
         self.calendarFrame.setFixedSize(300, 315)
         self.calendarLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.calendarFrame.move(200, 116)
-        self.lineEditDate.mousePressEvent = lambda event: self.showCalendar(event)
+        self.lineEditDate.mousePressEvent = lambda event: self.showCalendar(event, self.lineEditDate, )
 
         self.select_button.clicked.connect(self.showDateSelected)
         self.cancel_button.clicked.connect(self.canelCalendar)
+
     def canelCalendar(self):
         self.calendarFrame.setVisible(False)
         self.selected_dates =[]
         self.lineEditDate.clear()
     def showDateSelected(self):
+
         self.calendarFrame.setVisible(False)
         dates = "-".join([date.toString("dd/MM/yyyy") for date in self.selected_dates])
         self.lineEditDate.setText(dates)
@@ -213,13 +216,17 @@ class GeneralViewEx(GeneralView):
         selected_month = self.month_selector.currentIndex() + 1
         self.calendar.setCurrentPage(selected_year, selected_month)
         # Danh sách ngày đã chọn
-    def showCalendar(self, event):
+    def showCalendar(self, event, lineEdit):
+        pos_lineEdit = lineEdit.mapToGlobal(lineEdit.rect().bottomLeft())
+        # Tính toán vị trí hiển thị lịch
+        cal_width = self.calendarFrame.width()
+        cal_height = self.calendarFrame.height()
+        screen_rect = QApplication.primaryScreen().geometry()
+        # Nếu lịch bị lấp bên phải màn hình → đẩy sang trái
+        if pos_lineEdit.x() + cal_width > screen_rect.right():
+            # print(f"{pos_lineEdit.x() + cal_width}", screen_rect.right(), cal_width, pos_lineEdit.x(), pos_lineEdit.y())
+            pos_lineEdit.setX(screen_rect.right() - cal_width - 85)
+        self.calendarFrame.move(pos_lineEdit)
         self.calendarFrame.show()
 
-# app = QApplication.instance()
-# if app is None:
-#     app = QApplication(sys.argv)
-# w = GeneralViewEx()
-# w.show()
-# sys.exit(app.exec())
 

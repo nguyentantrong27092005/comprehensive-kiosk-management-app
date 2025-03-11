@@ -29,7 +29,6 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         self.orderSummaryVLayout.addWidget(self.orderWidget)
         self.orderSummaryVLayout.setContentsMargins(0, 0, 0, 0)
         self.frame_chung.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.test()
         self.addOrderItemBox()
         self.signalAndSlot_OrderWidget()
         # Else
@@ -56,24 +55,25 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
             else:
                 return "Bạn chưa đủ điều kiện áp dụng mã voucher này."
         #TH Tặng món
-        evout, evou = self.checkIsEffectiveTangMon(voucher)
-        if isinstance(evout, list):
-            freeItems = []
-            if self.sharedData.order.evoucherTangmonId:
-                self.removeFreeItem()
-                self.sharedData.order.evoucherTangmonId = None
-            for item in evout:
-                if totalPrice > item['MinimumPrice']:
-                    freeItems.append(item)
-            if not freeItems:
-                return "Bạn không đủ điều kiện để áp dụng mã voucher này."
-            else:
-                self.addFreeItem(freeItems)
-                self.sharedData.order.evoucherGiamGiaId = None
-                self.sharedData.order.evoucherTangmonId = evou[0]['ID']
-                return freeItems
-        if isinstance(evoug, str) and isinstance(evout, str):
-            return evoug
+        else:
+            evout, evou = self.checkIsEffectiveTangMon(voucher)
+            if isinstance(evout, list):
+                freeItems = []
+                if self.sharedData.order.evoucherTangmonId:
+                    self.removeFreeItem()
+                    self.sharedData.order.evoucherTangmonId = None
+                for item in evout:
+                    if totalPrice > item['MinimumPrice']:
+                        freeItems.append(item)
+                if not freeItems:
+                    return "Bạn không đủ điều kiện để áp dụng mã voucher này."
+                else:
+                    self.addFreeItem(freeItems)
+                    self.sharedData.order.evoucherGiamGiaId = None
+                    self.sharedData.order.evoucherTangmonId = evou[0]['ID']
+                    return freeItems
+        # if isinstance(evoug, str) and isinstance(evout, str):
+        #     return evoug
     def removeFreeItem(self):
         """Hàm dùng để xoá tất cả freeItem có trong giỏ hàng và update lại giỏ hàng"""
         free_items = [item for item in self.sharedData.order.orderItems if item.is_free]

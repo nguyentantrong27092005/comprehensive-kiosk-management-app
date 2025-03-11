@@ -1,4 +1,5 @@
 from common.sql_func import Database
+from kiosk_app.controllers.KioskMenuViewEx import KioskMenuViewEx
 from kiosk_app.controllers.PaymentSelectViewEx import PaymentSelectViewEx
 from kiosk_app.models.FoodItem import FoodItem
 from kiosk_app.models.Order import OrderItem
@@ -25,19 +26,15 @@ class DineSelectViewEx(GeneralView.GeneralView):
 
     def choose_dine_out(self):
         self.sharedData.order.isDineIn = 0
-        self.test()
-        paymentSelectView = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.addWidget(paymentSelectView)
-        self.mainStackedWidget.setCurrentWidget(paymentSelectView)
-        # paymentSelectView.pushButton_back.clicked.connect(lambda: self.mainStackedWidget.removeWidget(paymentSelectView))
+        kioskMenuViewEx = KioskMenuViewEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.addWidget(kioskMenuViewEx)
+        self.mainStackedWidget.setCurrentWidget(kioskMenuViewEx)
 
     def choose_dine_in(self):
         self.sharedData.order.isDineIn = 1
-        self.test()
-        paymentSelectView = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.addWidget(paymentSelectView)
-        self.mainStackedWidget.setCurrentWidget(paymentSelectView)
-        # paymentSelectView.pushButton_back.clicked.connect(lambda: self.mainStackedWidget.removeWidget(paymentSelectView))
+        kioskMenuViewEx = KioskMenuViewEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.addWidget(kioskMenuViewEx)
+        self.mainStackedWidget.setCurrentWidget(kioskMenuViewEx)
 
     def test(self):
         """Code này để test cho dữ liệu giỏ hàng."""

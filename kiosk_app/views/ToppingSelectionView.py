@@ -1,140 +1,144 @@
 import pymysql
 from PyQt6 import QtWidgets, QtGui, QtCore
 import sys
-from common.sql_func import Database_ToppingSelection
+from common.sql_func import Database
+from kiosk_app.models.SharedDataModel import SharedDataModel
 
-class Database_ToppingSelection:
-    def __init__(self):
-        try:
-            self.connection = pymysql.connect(
-                host="34.101.167.101",
-                user="dev",
-                password="12345678x@X",
-                database="kioskapp",
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            self.cursor = self.connection.cursor()
-        except pymysql.MySQLError as e:
-            self.connection = None
 
-    def fetch_topgroup(self, FoodItemID):
-       # Dựa vào ID --> Lấy danh sách nhóm topping
-        if not self.connection:
-            print("Không có kết nối đến cơ sở dữ liệu.")
-            return None
+# class Database_ToppingSelection:
+#     def __init__(self):
+#         try:
+#             self.connection = pymysql.connect(
+#                 host="34.101.167.101",
+#                 user="dev",
+#                 password="12345678x@X",
+#                 database="kioskapp",
+#                 cursorclass=pymysql.cursors.DictCursor
+#             )
+#             self.cursor = self.connection.cursor()
+#         except pymysql.MySQLError as e:
+#             self.connection = None
 
-        query = """SELECT tg.ID, tg.Name
-                   FROM toppinggroupfooditem tgfi
-                   INNER JOIN toppinggroup tg ON tg.ID = tgfi.ToppingGroupID
-                   WHERE tgfi.FoodItemID = %s;"""
-        try:
-            self.cursor.execute(query, (FoodItemID,))
-            return self.cursor.fetchall()
-        except pymysql.MySQLError as e:
-            print(f"Lỗi truy vấn fetch_topgroup: {e}")
-            return None
+    # def fetch_topgroup(self, FoodItemID):
+    #    # Dựa vào ID --> Lấy danh sách nhóm topping
+    #     if not self.connection:
+    #         print("Không có kết nối đến cơ sở dữ liệu.")
+    #         return None
+    #
+    #     query = """SELECT tg.ID, tg.Name
+    #                FROM toppinggroupfooditem tgfi
+    #                INNER JOIN toppinggroup tg ON tg.ID = tgfi.ToppingGroupID
+    #                WHERE tgfi.FoodItemID = %s;"""
+    #     try:
+    #         self.cursor.execute(query, (FoodItemID,))
+    #         return self.cursor.fetchall()
+    #     except pymysql.MySQLError as e:
+    #         print(f"Lỗi truy vấn fetch_topgroup: {e}")
+    #         return None
+    #
+    # def fetch_each_top(self, ToppingGroupID):
+    #     # Dựa vào ID nhóm topping  --> Lấy danh sách top cụ thể
+    #     if not self.connection:
+    #         print("Không có kết nối đến cơ sở dữ liệu.")
+    #         return None
+    #
+    #     query = """SELECT t.ID,
+    #                fi.Name,
+    #                fh.Price,
+    #                CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price * (1 - (p.Discount / 100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice,
+    #                fi.ImageURL
+    #         FROM topping t
+    #         INNER JOIN fooditem fi ON fi.ID = t.FoodItemID
+    #         INNER JOIN fooditem_history fh ON fi.ID = fh.FoodItemID
+    #         LEFT JOIN promotionfooditem pfi ON fi.ID = pfi.FoodItemID
+    #         LEFT JOIN promotion p ON p.ID = pfi.PromotionID
+    #         WHERE t.ToppingGroupID = %s;"""
+    #     try:
+    #         self.cursor.execute(query, (ToppingGroupID,))
+    #         return self.cursor.fetchall()
+    #     except pymysql.MySQLError as e:
+    #         print(f"Lỗi truy vấn fetch_each_top: {e}")
+    #         return None
+    #
+    # def fetch_all_toppings(self, FoodItemID):
+    #     # Lấy toàn bộ danh sách topping dựa vào FoodItemID
+    #     topping_groups = self.fetch_topgroup(FoodItemID)
+    #     print(topping_groups)
+    #     if not topping_groups:
+    #         print("Không có nhóm topping nào cho món ăn này.")
+    #         return []
+    #
+    #     all_toppings = []
+    #     for group in topping_groups:
+    #         toppings = self.fetch_each_top(group['ID'])
+    #         if toppings:
+    #             all_toppings.extend(toppings)
+    #
+    #     return all_toppings
+    #
+    # def fetch_variantgroup(self, FoodItemID):
+    #     """Dụa vào ID --> Lấy hết các variant group"""
+    #     if not self.connection:
+    #         return None
+    #     query = """SELECT vg.ID, vg.Name, vg.IsRequired, vg.ViewType, vg.HasPrice
+    #                       FROM variantgroupfooditem vgfi
+    #                       INNER JOIN variantgroup vg ON vg.ID = vgfi.VariantGroupID
+    #                       WHERE vgfi.FoodItemID = %s;"""
+    #     try:
+    #         self.cursor.execute(query, (FoodItemID,))
+    #         return self.cursor.fetchall()
+    #     except pymysql.MySQLError as e:
+    #         print(f"Lỗi truy vấn fetch_variantgroup: {e}")
+    #         return None
+    #
+    # def fetch_each_variant(self, VariantGroupID):
+    #     # Dựa vào ID variant grouup --> Lấy hết các variant trong group đó
+    #     if not self.connection:
+    #         return None
+    #
+    #     query = """SELECT ID, Value, Price, AdditionalCost
+    #                       FROM variant
+    #                       WHERE variantGroupID = %s;"""
+    #     try:
+    #         self.cursor.execute(query, (VariantGroupID,))
+    #         return self.cursor.fetchall()
+    #     except pymysql.MySQLError as e:
+    #         print(f"Lỗi truy vấn fetch_each_variant: {e}")
+    #         return None
+    #
+    # def fetch_all_variants(self, FoodItemID):
+    #     # Lấy toàn bộ danh sách variant
+    #     variant_groups = self.fetch_variantgroup(FoodItemID)
+    #     if not variant_groups:
+    #         return []
+    #
+    #     all_variants = []
+    #     for group in variant_groups:
+    #         variants = self.fetch_each_variant(group['ID'])
+    #         if variants:
+    #             all_variants.extend(variants)
+    #
+    #     return all_variants
 
-    def fetch_each_top(self, ToppingGroupID):
-        # Dựa vào ID nhóm topping  --> Lấy danh sách top cụ thể
-        if not self.connection:
-            print("Không có kết nối đến cơ sở dữ liệu.")
-            return None
-
-        query = """SELECT t.ID,
-                   fi.Name,
-                   fh.Price, 
-                   CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price * (1 - (p.Discount / 100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice,
-                   fi.ImageURL
-            FROM topping t
-            INNER JOIN fooditem fi ON fi.ID = t.FoodItemID
-            INNER JOIN fooditem_history fh ON fi.ID = fh.FoodItemID
-            LEFT JOIN promotionfooditem pfi ON fi.ID = pfi.FoodItemID
-            LEFT JOIN promotion p ON p.ID = pfi.PromotionID
-            WHERE t.ToppingGroupID = %s;"""
-        try:
-            self.cursor.execute(query, (ToppingGroupID,))
-            return self.cursor.fetchall()
-        except pymysql.MySQLError as e:
-            print(f"Lỗi truy vấn fetch_each_top: {e}")
-            return None
-
-    def fetch_all_toppings(self, FoodItemID):
-        # Lấy toàn bộ danh sách topping dựa vào FoodItemID
-        topping_groups = self.fetch_topgroup(FoodItemID)
-        print(topping_groups)
-        if not topping_groups:
-            print("Không có nhóm topping nào cho món ăn này.")
-            return []
-
-        all_toppings = []
-        for group in topping_groups:
-            toppings = self.fetch_each_top(group['ID'])
-            if toppings:
-                all_toppings.extend(toppings)
-
-        return all_toppings
-
-    def fetch_variantgroup(self, FoodItemID):
-        """Dụa vào ID --> Lấy hết các variant group"""
-        if not self.connection:
-            return None
-        query = """SELECT vg.ID, vg.Name, vg.IsRequired, vg.ViewType, vg.HasPrice
-                          FROM variantgroupfooditem vgfi
-                          INNER JOIN variantgroup vg ON vg.ID = vgfi.VariantGroupID
-                          WHERE vgfi.FoodItemID = %s;"""
-        try:
-            self.cursor.execute(query, (FoodItemID,))
-            return self.cursor.fetchall()
-        except pymysql.MySQLError as e:
-            print(f"Lỗi truy vấn fetch_variantgroup: {e}")
-            return None
-
-    def fetch_each_variant(self, VariantGroupID):
-        # Dựa vào ID variant grouup --> Lấy hết các variant trong group đó
-        if not self.connection:
-            return None
-
-        query = """SELECT ID, Value, Price, AdditionalCost
-                          FROM variant
-                          WHERE variantGroupID = %s;"""
-        try:
-            self.cursor.execute(query, (VariantGroupID,))
-            return self.cursor.fetchall()
-        except pymysql.MySQLError as e:
-            print(f"Lỗi truy vấn fetch_each_variant: {e}")
-            return None
-
-    def fetch_all_variants(self, FoodItemID):
-        # Lấy toàn bộ danh sách variant
-        variant_groups = self.fetch_variantgroup(FoodItemID)
-        if not variant_groups:
-            return []
-
-        all_variants = []
-        for group in variant_groups:
-            variants = self.fetch_each_variant(group['ID'])
-            if variants:
-                all_variants.extend(variants)
-
-        return all_variants
-
-    def close_connection(self):
-        if self.connection:
-            self.cursor.close()
-            self.connection.close()
+    # def close_connection(self):
+    #     if self.connection:
+    #         self.cursor.close()
+    #         self.connection.close()
 
 class ToppingSelection(QtWidgets.QWidget):
 
-    def __init__(self):
+    def __init__(self, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.setWindowTitle("Chi tiết")
         self.topping_widgets = []
         self.resize(398,708)  # Set size
-        self.setupUI()
+        self.setupUI(sharedData, db)
 
-    def setupUI(self):
+    def setupUI(self, sharedData: SharedDataModel, db: Database):
         # set layout dọc
         self.main_layout = QtWidgets.QVBoxLayout(self)
+        self.sharedData = sharedData
+        self.db = db
 
         # tạo header chứa tiêu đề Chi tiết + button quay lại
         self.title_container = QtWidgets.QWidget()
@@ -169,12 +173,8 @@ class ToppingSelection(QtWidgets.QWidget):
         # Thêm header vào giao diện chính
         self.main_layout.addWidget(self.title_container)
 
-        db = Database_ToppingSelection()
-
         # food_item_id = int(input("Nhập food_item_id muốn xem chi tiết: "))  # thay = ID của món ăn cần lấy
-        food_item_id = 13
-        toppings = db.fetch_all_toppings(food_item_id)  # trả về danh sách dicts topping
-        db.close_connection()
+        toppings = self.db.fetch_all_toppings(self.sharedData.selected_item.id)  # trả về danh sách dicts topping
 
         # Vì dữ liệu topping trả về là dict --> xây dựng hàm chuyển về tuple để cho dễ trích xuất dữ liệu
         # Hàm chuyển đổi thành dữ liệu tuple
@@ -182,11 +182,10 @@ class ToppingSelection(QtWidgets.QWidget):
             return [(p["ID"], p["Name"], p["Price"], p["DiscountedPrice"], p["ImageURL"]) for p in toppings]
 
         product_tuples = convert_to_tuples(toppings)
-        db = Database_ToppingSelection()
 
         # Lấy danh sách nhóm biến thể
 
-        variant_groups = db.fetch_variantgroup(food_item_id)
+        variant_groups = self.db.fetch_variantgroup(self.sharedData.selected_item.id)
 
         if variant_groups:
             for i in variant_groups:
@@ -197,8 +196,7 @@ class ToppingSelection(QtWidgets.QWidget):
                     self.radio_list = []  # Chỉ lưu radio button và ID, Value
 
                     # Lấy danh sách các variant từ DB
-                    variants = db.fetch_each_variant(i["ID"])
-                    db.close_connection()
+                    variants = self.db.fetch_each_variant(i["ID"])
 
                     if variants:
                         for variant in variants:
@@ -215,7 +213,7 @@ class ToppingSelection(QtWidgets.QWidget):
                     self.horizontal_layout_size = QtWidgets.QHBoxLayout()
                     self.button_sizes = []
 
-                    variants = db.fetch_each_variant(i["ID"])  # Lấy danh sách size từ DB
+                    variants = self.db.fetch_each_variant(i["ID"])  # Lấy danh sách size từ DB
                     if variants:
                         for variant in variants:
                             button_size = QtWidgets.QPushButton(variant["Value"])

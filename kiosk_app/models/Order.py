@@ -46,14 +46,14 @@ class Order:
         if cart_length > 0:
             for order_item in self.orderItems:
                 self.totalAmount += order_item.quantity
-                self.totalPrice += order_item.foodItem.discount * order_item.quantity
+                self.totalPrice += order_item.foodItem.discounted_price * order_item.quantity
 
     def add_new_order_items(self, orderItems: List[OrderItem]):
         """Sử dụng hàm này để thêm món mới vào đơn hàng. Nó sẽ tự động tính lại giá tổng và số lượng của đơn hàng."""
         for orderItem in orderItems:
             self.orderItems.append(orderItem)
             self.totalAmount += orderItem.quantity
-            self.totalPrice += orderItem.foodItem.discount * orderItem.quantity
+            self.totalPrice += orderItem.foodItem.discounted_price * orderItem.quantity
 
             for topping in orderItem.toppingList:
                 self.totalPrice += topping.price * orderItem.quantity

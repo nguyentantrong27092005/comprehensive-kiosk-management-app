@@ -1,3 +1,4 @@
+from kiosk_app.models.FoodItem import FoodItem
 from kiosk_app.models.Order import Order
 from PyQt6.QtCore import QObject, pyqtSignal
 #Đây là class dùng để share data giữa các màn hình với nhau. Nó sẽ luôn được truyền qua lại giữa các màn hình.

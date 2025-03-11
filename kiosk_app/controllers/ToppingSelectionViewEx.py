@@ -1,22 +1,25 @@
 import sys
 import pymysql
 from PyQt6 import QtWidgets
+
+from common.sql_func import Database
 from kiosk_app.models.FoodItem import FoodItem
 from kiosk_app.models.Order import OrderItem, Order
 from kiosk_app.models.SharedDataModel import SharedDataModel
 from kiosk_app.models.ToppingVariant import Topping, Variant
-from kiosk_app.views.ToppingSelectionView import ToppingSelection, Database_ToppingSelection
-from kiosk_app.views.order_summary_view import Ui_MainWindow
+from kiosk_app.views.ToppingSelectionView import ToppingSelection
+from kiosk_app.controllers.OrderSummaryViewEx import OrderSummaryViewEx
 
 class ToppingSelectionEx(ToppingSelection):
 
-    def __init__(self, mainStackedWidget: QtWidgets.QStackedWidget, sharedData, db):
-        super().__init__()
+    def __init__(self, mainStackedWidget: QtWidgets.QStackedWidget, sharedData: SharedDataModel, db: Database):
+        super().__init__(sharedData, db)
         self.sharedData = sharedData
         self.db = db
         self.selected_quantity = 1  # Đặt giá trị mặc định là 1 đề phòng người dùng ko thay đổi số lượng
         self.mainStackedWidget = mainStackedWidget
         self.setup_connections()
+        self.back_button.clicked.connect(lambda: self.mainStackedWidget.removeWidget(self))
 
     def setup_connections(self):
         # Liên kết tới các chức năng Backend
@@ -34,9 +37,10 @@ class ToppingSelectionEx(ToppingSelection):
 
     def open_order_summary(self):
         # Mở cửa số Order
-        if not self.order_summary_window:
-            self.order_summary_window = Ui_MainWindow()
-        self.order_summary_window.show()
+        order_summary_window = OrderSummaryViewEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.addWidget(order_summary_window)
+        self.mainStackedWidget.setCurrentWidget(order_summary_window)
+        self.mainStackedWidget.removeWidget(self)
 
     def increase_quantity(self):
         #Tăng số lượng
@@ -74,32 +78,22 @@ class ToppingSelectionEx(ToppingSelection):
             print("Món này không có size")
 
         # Lưu danh sách toppings đã chọn
-        self.selected_toppings = []
+        selectedToppingList = []
         for (checkbox, name), (topping_id, _, price, discounted_price, _) in zip(self.checkboxes, self.toppings):
             if checkbox.isChecked():
                 topping = Topping(topping_id, name, price, discounted_price) # tạo ra các object topping từ class Topping
-                self.selected_toppings.append(topping)
-
-        # chuyển toppings thành data type: tuple
-        selectedToppingList = []
-        for t in self.selected_toppings:
-            selectedToppingList.append((t.id, t.name, t.price, f"{t.discountPrice:,}đ"))
+                selectedToppingList.append(topping)
 
         # In ra kiểm tra
         if selectedToppingList:
             print("selectedToppingList:", selectedToppingList)
 
         # Lưu danh sách variants đã chọn
-        self.selected_variants = []
+        selectedVariantList = []
         for radio_button, variant_id, value in self.radio_list:
             if radio_button.isChecked():
                 variant = Variant(variant_id, value) # Tạo ra các object từ variant từ class Variant
-                self.selected_variants.append(variant)
-
-        # chuyển variants thành data type: tuple
-        selectedVariantList = []
-        for v in self.selected_variants:
-            selectedVariantList.append((v.id, v.value))
+                selectedVariantList.append(variant)
 
         # In để kiểm tra
         if selectedVariantList:
@@ -125,24 +119,22 @@ class ToppingSelectionEx(ToppingSelection):
         selected_quantity = self.selected_quantity
         print(f"quantity: {selected_quantity}")
 
-        foodItem = FoodItem(1, "trà xoài", 19000, 16000, "Image.png", True) #food_item tự cấp do chưa có hàm truyền qua từ menu
-
         # Gọi class OrderItem --> Tạo ra OrderItem
         generatedOrderItem = OrderItem(
-            foodItem = foodItem,
+            foodItem = self.sharedData.selected_item,
             quantity = selected_quantity,
             note = self.order_note,
             toppingList = selectedToppingList,
             variantList = selectedVariantList )
+        self.sharedData.order.add_new_order_items([generatedOrderItem])
         print(f"Thông tin chi tiết về OrderItem: {generatedOrderItem}")
         print('*'*15)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     mainStackedWidget = QtWidgets.QStackedWidget()
-    shareData = SharedDataModel()
-    sharedData = Order()
-    db = Database_ToppingSelection()
+    sharedData = SharedDataModel()
+    db = Database()
     window = ToppingSelectionEx(mainStackedWidget, sharedData, db)
     window.show()
     sys.exit(app.exec())

@@ -3,10 +3,8 @@ from functools import partial
 from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout
 
 from common.sql_func import Database
-# from kiosk_app.controllers.OrderControllerEx import OrderControllerEx
 from kiosk_app.controllers.ToppingSelectionViewEx import ToppingSelectionEx
 
-from kiosk_app.controllers.DineSelectViewEx import DineSelectViewEx
 from kiosk_app.models.FoodItem import FoodItem
 from kiosk_app.models.SharedDataModel import SharedDataModel
 from kiosk_app.views import GeneralView, KioskMenuView

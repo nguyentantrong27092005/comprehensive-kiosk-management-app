@@ -1,7 +1,6 @@
 import sys
 
-from PyQt6 import QtCore
-from PyQt6.QtWidgets import QCalendarWidget, QPushButton, QFrame, QGridLayout, QApplication
+from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtGui import QTextCharFormat, QBrush, QColor
 from PyQt6.QtCore import QDate
 
@@ -13,24 +12,22 @@ from admin_app.views.GeneralView import GeneralView
 class GeneralViewEx(GeneralView):
     def __init__(self):
         super().__init__()
-        self.setupUi()
         self.lineEditDate.setPlaceholderText("Chọn thời gian")
         self.lineEditDate.setReadOnly(True)
-        self.selected_dates = [] # list ngày được chọn
+        self.selected_dates = []
 
-        self.calendarFrame = QFrame(self)
-        self.calendarFrame.setFrameShape(QFrame.Shape.StyledPanel)
-        self.calendarFrame.setFrameShadow(QFrame.Shadow.Raised)
+        self.calendarFrame = QtWidgets.QFrame(self)
+        self.calendarFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.calendarFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.calendarFrame.setParent(self)
 
-        self.calendarLayout = QGridLayout(self.calendarFrame)
+        self.calendarLayout = QtWidgets.QGridLayout(self.calendarFrame)
         self.calendarFrame.setVisible(False)
 
         # Calendar widget
-        self.calendar = QCalendarWidget()
-        self.calendar.clicked.connect(self.handle_date_selection)
+        self.calendar = QtWidgets.QCalendarWidget()
         self.calendar.setMaximumDate(QDate.currentDate())
-        self.calendar.setVerticalHeaderFormat(QCalendarWidget.VerticalHeaderFormat.NoVerticalHeader)  # Ẩn số thứ tự
+        self.calendar.setVerticalHeaderFormat(QtWidgets.QCalendarWidget.VerticalHeaderFormat.NoVerticalHeader)  # Ẩn số thứ tự
         self.calendar.setStyleSheet("""
                             QCalendarWidget {
                                 border: 1px solid #ccc;
@@ -117,7 +114,7 @@ class GeneralViewEx(GeneralView):
                         """)
 
         # Nút chọn ngày
-        self.select_button = QPushButton("Chọn")
+        self.select_button = QtWidgets.QPushButton("Chọn")
         self.select_button.setStyleSheet("""
                             QPushButton {
                                 background-color: #bd1906;
@@ -131,7 +128,7 @@ class GeneralViewEx(GeneralView):
                                 background-color: #ffffff;
                             }
                         """)
-        self.cancel_button =QPushButton("Huỷ")
+        self.cancel_button =QtWidgets.QPushButton("Huỷ")
         self.cancel_button.setStyleSheet("""
                                     QPushButton {
                                         background-color: #bd1906;
@@ -155,20 +152,23 @@ class GeneralViewEx(GeneralView):
         self.calendarFrame.setFixedSize(300, 315)
         self.calendarLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.lineEditDate.mousePressEvent = lambda event: self.showCalendar(event, self.lineEditDate, )
+        self.signalandslot()
 
-        self.select_button.clicked.connect(self.showDateSelected)
-        self.cancel_button.clicked.connect(self.canelCalendar)
 
-    def canelCalendar(self):
-        self.calendarFrame.setVisible(False)
-        self.selected_dates =[]
-        self.lineEditDate.clear()
-    def showDateSelected(self):
-
+    def signalandslot(self):
+        self.calendar.clicked.connect(self.handle_date_selection)
+        self.cancel_button.clicked.connect(self.hideCalendar)
+        self.lineEditDate.mousePressEvent = lambda event: self.showCalendar(event, self.lineEditDate)
+        self.select_button.clicked.connect(lambda lineedit: self.showSelectedDate(self.lineEditDate))
+    def showSelectedDate(self, lineEditDate):
         self.calendarFrame.setVisible(False)
         dates = "-".join([date.toString("dd/MM/yyyy") for date in self.selected_dates])
-        self.lineEditDate.setText(dates)
+        lineEditDate.setText(str(dates))
+
+    def hideCalendar(self):
+        self.calendarFrame.setVisible(False)
+        self.selected_dates =[]
+
 
     def handle_date_selection(self, date):
         """Xử lý khi người dùng chọn ngày"""
@@ -212,7 +212,10 @@ class GeneralViewEx(GeneralView):
 
     def update_calendar(self):
         """Cập nhật lịch khi chọn tháng/năm khác"""
-        selected_year = int(self.year_selector.currentText())
+        selected_date = self.calendar.selectedDate()
+        # selected_year = int(self.year_selector.currentText())
+        selected_year = selected_date.year()
+        print(selected_year)
         selected_month = self.month_selector.currentIndex() + 1
         self.calendar.setCurrentPage(selected_year, selected_month)
         # Danh sách ngày đã chọn
@@ -221,12 +224,16 @@ class GeneralViewEx(GeneralView):
         # Tính toán vị trí hiển thị lịch
         cal_width = self.calendarFrame.width()
         cal_height = self.calendarFrame.height()
-        screen_rect = QApplication.primaryScreen().geometry()
-        # Nếu lịch bị lấp bên phải màn hình → đẩy sang trái
+        screen_rect = QtWidgets.QApplication.primaryScreen().geometry()
+        # Nếu lịch bị lấp bên phải màn hình -> đẩy sang trái
         if pos_lineEdit.x() + cal_width > screen_rect.right():
-            # print(f"{pos_lineEdit.x() + cal_width}", screen_rect.right(), cal_width, pos_lineEdit.x(), pos_lineEdit.y())
             pos_lineEdit.setX(screen_rect.right() - cal_width - 85)
         self.calendarFrame.move(pos_lineEdit)
         self.calendarFrame.show()
 
-
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    window = GeneralViewEx()
+    window.show()
+    sys.exit(app.exec())

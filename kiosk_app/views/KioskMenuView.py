@@ -1,7 +1,9 @@
+import math
 
 import pymysql
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QRect
+from PyQt6.QtGui import QColor, QFont, QPixmap, QPainter, QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QLabel, QVBoxLayout, QFrame, QPushButton, \
     QScrollArea, QWidget, QGroupBox, QGridLayout, QStackedWidget
 
@@ -118,8 +120,8 @@ class Button(QPushButton):
     def __init__(self, name, icon_path):
         super().__init__()
         self.setText(name)
-        self.setIcon(QtGui.QIcon(icon_path))
-        self.setIconSize(QtCore.QSize(30, 30))
+        self.setIcon(QtGui.QIcon(QPixmap(icon_path).scaled(32, 32)))
+        self.setIconSize(QtCore.QSize(32, 32))
         self.setFlat(True)  # bỏ viền ở ngoài của nút
         self.setFont(QtGui.QFont("Montserrat", 14, QtGui.QFont.Weight.Bold))
         self.setStyleSheet("""
@@ -221,7 +223,83 @@ class MenuWidget(QWidget):
         # nút trang chủ
         self.pushButton_home = Button("Trang chủ", "kiosk_app/resources/images/ic_home.png")
         self.layout_2button.addWidget(self.pushButton_home)
+        self.pushButton_home.setFixedHeight(45)
         # nút giỏ hàng
-        self.pushButton_shoppingcart = Button("Giỏ hàng", "kiosk_app/resources/images/ic_shoppingcart.png")
+        self.pushButton_shoppingcart = CartButton(0)
         self.layout_2button.addWidget(self.pushButton_shoppingcart)
+        self.layout_2button.setStretch(0,1)
+        self.layout_2button.setStretch(1, 1)
 
+class CartIconWidget(QWidget):
+    def __init__(self, count=0, parent=None):
+        super().__init__(parent)
+        self.count = count
+        self.setFixedSize(45, 45)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Draw the cart icon
+        pixmap = QPixmap("kiosk_app/resources/images/shopping_cart.png")  # Replace with your cart icon path
+        icon_size = 32
+        icon_x = (self.width() - icon_size) // 2
+        icon_y = (self.height() - icon_size) // 2
+        painter.drawPixmap(icon_x, icon_y, icon_size, icon_size, pixmap)
+
+        circle_diameter = 15
+        circle_rect = QRect(self.width() - int(circle_diameter*1.25), int(circle_diameter*0.5), circle_diameter, circle_diameter)
+        painter.setBrush(QColor("red"))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawEllipse(circle_rect)
+
+        # Draw the count number
+        painter.setPen(Qt.GlobalColor.white)
+        font = QFont("Inter", math.ceil(circle_diameter*0.5), QFont.Weight.Normal)
+        painter.setFont(font)
+        painter.drawText(circle_rect, Qt.AlignmentFlag.AlignCenter, str(self.count))
+
+    def setCount(self, count):
+        self.count = count
+        self.update()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.update()  # Redraw the widget when it becomes visible
+
+class CartButton(QPushButton):
+    def __init__(self, count=0, parent=None):
+        super().__init__(parent)
+        # self.setFixedSize(150, 60)
+        self.setFixedHeight(45)
+
+        # Create a layout to hold the cart icon and text
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(25, 0, 0, 0)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Create the cart icon widget and add it to the layout
+        self.icon_widget = CartIconWidget(count)
+        layout.addWidget(self.icon_widget)
+        self.button_label = QLabel()
+        self.button_label.setText("Giỏ hàng")
+        self.button_label.setStyleSheet("background-color: #bd1906; color: white")
+        self.button_label.setFont(QtGui.QFont("Montserrat", 14, QtGui.QFont.Weight.Bold))
+        layout.addWidget(self.button_label)
+
+        # Add the button text to the layout
+        # self.setText("Giỏ hàng")
+        layout.addStretch()
+
+        self.setStyleSheet("""
+                            QPushButton {
+                                background-color: #bd1906;
+                                color: #ffffff;
+                                padding: 5px;
+                                border-radius: 0px;
+                            }
+                            QPushButton:pressed {
+                                background-color:#a61505;
+                            }
+                        """)

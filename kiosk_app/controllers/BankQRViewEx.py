@@ -9,8 +9,9 @@ from kiosk_app.controllers.BankSuccessViewEx import BankSuccessViewEx
 from kiosk_app.models.EnumClasses import OrderStatus
 from kiosk_app.models.SharedDataModel import SharedDataModel
 from kiosk_app.views import BankQRView, GeneralView
-from PyQt6.QtWidgets import QVBoxLayout, QStackedWidget
+from PyQt6.QtWidgets import QVBoxLayout
 from kiosk_app.controllers.BankPaymentHandler import BankPaymentHandler
+from kiosk_app.views.CustomStackedWidget import CustomStackedWidget
 
 class Image(qrcode.image.base.BaseImage):
     def __init__(self, border, width, box_size, qrcode_modules):
@@ -73,7 +74,7 @@ class PaymentCheckThread(QThread):
         self.running = False
 
 class BankQRViewEx(GeneralView.GeneralView):
-    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
+    def __init__(self, mainStackedWidget: CustomStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.mainStackedWidget = mainStackedWidget
         self.sharedData = sharedData
@@ -106,11 +107,8 @@ class BankQRViewEx(GeneralView.GeneralView):
         - Chuyển sang màn hình thông báo giao dịch thành công.
         - Huỷ màn hình hiện tại"""
         self.update_order_status(OrderStatus.inprogress.value)
-        self.sharedData.reset_data()
         bankSuccessView = BankSuccessViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.addWidget(bankSuccessView)
-        self.mainStackedWidget.setCurrentWidget(bankSuccessView)
-        self.mainStackedWidget.removeWidget(self)
+        self.mainStackedWidget.change_screen(bankSuccessView, self)
 
     def on_payment_timeout(self):
         """Hàm này sẽ được thực hiện khi check đơn hàng đã được thanh toán. Nó sẽ thực hiện các tác vụ sau:
@@ -122,9 +120,7 @@ class BankQRViewEx(GeneralView.GeneralView):
         self.sharedData.reset_data()
         bankFailedView = BankFailedViewEx(self.mainStackedWidget, self.sharedData, self.db, "Thanh toán thất bại!",
                                           "Mã đã hết hạn. Vui lòng đặt đơn hàng mới.")
-        self.mainStackedWidget.addWidget(bankFailedView)
-        self.mainStackedWidget.setCurrentWidget(bankFailedView)
-        self.mainStackedWidget.removeWidget(self)
+        self.mainStackedWidget.change_screen(bankFailedView, self)
 
     def show_time(self):
         self.count -= 1

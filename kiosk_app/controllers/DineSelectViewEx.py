@@ -1,16 +1,18 @@
 from common.sql_func import Database
+from kiosk_app.controllers.KioskMenuViewEx import KioskMenuViewEx
 from kiosk_app.controllers.PaymentSelectViewEx import PaymentSelectViewEx
 from kiosk_app.models.FoodItem import FoodItem
 from kiosk_app.models.Order import OrderItem
 from kiosk_app.models.ToppingVariant import Variant, Topping
 from kiosk_app.views import GeneralView
-from PyQt6.QtWidgets import QVBoxLayout, QStackedWidget
+from PyQt6.QtWidgets import QVBoxLayout
 from kiosk_app.models.SharedDataModel import SharedDataModel
 from kiosk_app.views.DineSelectView import DineSelectWidget
+from kiosk_app.views.CustomStackedWidget import CustomStackedWidget
 
 
 class DineSelectViewEx(GeneralView.GeneralView):
-    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
+    def __init__(self, mainStackedWidget: CustomStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.sharedData = sharedData
         self.db = db
@@ -25,19 +27,17 @@ class DineSelectViewEx(GeneralView.GeneralView):
 
     def choose_dine_out(self):
         self.sharedData.order.isDineIn = 0
-        self.test()
-        paymentSelectView = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.addWidget(paymentSelectView)
-        self.mainStackedWidget.setCurrentWidget(paymentSelectView)
-        # paymentSelectView.pushButton_back.clicked.connect(lambda: self.mainStackedWidget.removeWidget(paymentSelectView))
+        self.mainStackedWidget.change_screen_with_index(1)
+        currentWidget = self.mainStackedWidget.currentWidget()
+        currentWidget.load_items(category_name=None, category_id=None)
+        currentWidget.kioskMenuWidget.groupbox_item.setTitle("Tất cả món")
 
     def choose_dine_in(self):
         self.sharedData.order.isDineIn = 1
-        self.test()
-        paymentSelectView = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.addWidget(paymentSelectView)
-        self.mainStackedWidget.setCurrentWidget(paymentSelectView)
-        # paymentSelectView.pushButton_back.clicked.connect(lambda: self.mainStackedWidget.removeWidget(paymentSelectView))
+        self.mainStackedWidget.change_screen_with_index(1)
+        currentWidget = self.mainStackedWidget.currentWidget()
+        currentWidget.load_items(category_name=None, category_id=None)
+        currentWidget.kioskMenuWidget.groupbox_item.setTitle("Tất cả món")
 
     def test(self):
         """Code này để test cho dữ liệu giỏ hàng."""

@@ -14,6 +14,15 @@ class Database:
         self.host = os.getenv('HOST_DB')
         self.port = int(os.getenv('PORT_DB'))
         self.database = os.getenv('DB')
+        self.conn = pymysql.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                database=self.database,
+                port=self.port,
+                cursorclass=pymysql.cursors.DictCursor  # Dùng Cursor để lấy dữ liệu dạng tuple
+            )
+        self.cursor = self.conn.cursor()
 
     def fetch_data(self, query, *arg):
         """
@@ -40,21 +49,12 @@ class Database:
             Danh sách các dòng dữ liệu từ truy vấn.
         """
         try:
-            conn = pymysql.connect(
-                host=self.host,
-                user=self.user,
-                password=self.password,
-                database=self.database,
-                port=self.port,
-                cursorclass=pymysql.cursors.DictCursor  # Dùng Cursor để lấy dữ liệu dạng tuple
-            )
-            cursor = conn.cursor()
-            cursor.execute(query, arg)
-            result = cursor.fetchall()
+            self.cursor.execute(query, arg)
+            result = self.cursor.fetchall()
 
-            cursor.close()
-            conn.close()
-
+            # cursor.close()
+            # conn.close()
+            #
             return result
 
         except pymysql.MySQLError as err:
@@ -86,22 +86,13 @@ class Database:
             Danh sách các dòng dữ liệu từ truy vấn.
         """
         try:
-            conn = pymysql.connect(
-                host=self.host,
-                user=self.user,
-                password=self.password,
-                database=self.database,
-                port=self.port,
-                cursorclass=pymysql.cursors.Cursor  # Dùng Cursor để lấy dữ liệu dạng tuple
-            )
-            cursor = conn.cursor()
-            cursor.execute(query, arg)
-            conn.commit()
+            self.cursor.execute(query, arg)
+            self.conn.commit()
 
-            affected_rows = cursor.rowcount
+            affected_rows = self.cursor.rowcount
 
-            cursor.close()
-            conn.close()
+            # cursor.close()
+            # conn.close()
 
             return affected_rows
 
@@ -122,16 +113,7 @@ class Database:
             call_stored_procedure("UpdateUserAge", 5, 30)
         """
         try:
-            conn = pymysql.connect(
-                host=self.host,
-                user=self.user,
-                password=self.password,
-                database=self.database,
-                port=self.port,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-
-            with conn.cursor() as cursor:
+            with self.cursor as cursor:
                 cursor.callproc(stored_proc_name, params)
                 result = cursor.fetchall()
 
@@ -140,22 +122,12 @@ class Database:
                 else:
                     print(f"⚠ Stored Procedure '{stored_proc_name}' không trả về dữ liệu!")
 
-            conn.commit()
+            self.conn.commit()
         except pymysql.MySQLError as err:
             print(f"❌ Lỗi khi gọi stored procedure '{stored_proc_name}': {err}")
-        finally:
-            conn.close()
 
     def submit_order_transaction(self, orderInfo: Order):
-        conn = pymysql.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            database=self.database,
-            port=self.port,
-            autocommit=False #Transaction automatically begins
-        )
-        cursor = conn.cursor()
+        cursor = self.cursor
         orderDetails = orderInfo.orderItems
         try:
             #Tạo order mới
@@ -212,13 +184,113 @@ class Database:
                 cursor.executemany(orderDetailsVariantQuery, orderDetailsVariantData)
 
             # Commit transaction
-            conn.commit()
+            self.conn.commit()
             print("✅ Order, order details, orderDetailsTopping and orderDetailsVariant inserted successfully.")
         except pymysql.MySQLError as err:
             # Rollback transaction if anything fails
-            conn.rollback()
+            self.conn.rollback()
             print(f"❌ Transaction failed: {err}")
-        finally:
-            # Close the cursor and connection
-            cursor.close()
-            conn.close()
+        # finally:
+        #     # Close the cursor and connection
+        #     cursor.close()
+        #     conn.close()
+
+    def fetch_topgroup(self, FoodItemID):
+       # Dựa vào ID --> Lấy danh sách nhóm topping
+       query = """SELECT tg.ID, tg.Name
+                   FROM toppinggroupfooditem tgfi
+                   INNER JOIN toppinggroup tg ON tg.ID = tgfi.ToppingGroupID
+                   WHERE tgfi.FoodItemID = %s;"""
+       return self.fetch_data(query, FoodItemID)
+
+    def fetch_each_top(self, ToppingGroupID):
+        query = """SELECT t.ID,
+                   fi.Name,
+                   fh.Price, 
+                   CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price * (1 - (p.Discount / 100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice,
+                   fi.ImageURL
+            FROM topping t
+            INNER JOIN fooditem fi ON fi.ID = t.FoodItemID
+            INNER JOIN fooditem_history fh ON fi.ID = fh.FoodItemID
+            LEFT JOIN promotionfooditem pfi ON fi.ID = pfi.FoodItemID
+            LEFT JOIN promotion p ON p.ID = pfi.PromotionID
+            WHERE t.ToppingGroupID = %s;"""
+        return self.fetch_data(query, ToppingGroupID)
+
+    def fetch_all_toppings(self, FoodItemID):
+        # Lấy toàn bộ danh sách topping dựa vào FoodItemID
+        topping_groups = self.fetch_topgroup(FoodItemID)
+        print(topping_groups)
+        if not topping_groups:
+            print("Không có nhóm topping nào cho món ăn này.")
+            return []
+
+        all_toppings = []
+        for group in topping_groups:
+            toppings = self.fetch_each_top(group['ID'])
+            if toppings:
+                all_toppings.extend(toppings)
+
+        return all_toppings
+
+    def fetch_variantgroup(self, FoodItemID):
+        """Dụa vào ID --> Lấy hết các variant group"""
+        query = """SELECT vg.ID, vg.Name, vg.IsRequired, vg.ViewType, vg.HasPrice
+                          FROM variantgroupfooditem vgfi
+                          INNER JOIN variantgroup vg ON vg.ID = vgfi.VariantGroupID
+                          WHERE vgfi.FoodItemID = %s;"""
+        return self.fetch_data(query, FoodItemID)
+
+    def fetch_each_variant(self, VariantGroupID):
+        # Dựa vào ID variant grouup --> Lấy hết các variant trong group đó
+        query = """SELECT ID, Value, Price, AdditionalCost
+                          FROM variant
+                          WHERE variantGroupID = %s;"""
+        return self.fetch_data(query, VariantGroupID)
+
+    def fetch_all_variants(self, FoodItemID):
+        # Lấy toàn bộ danh sách variant
+        variant_groups = self.fetch_variantgroup(FoodItemID)
+        if not variant_groups:
+            return []
+
+        all_variants = []
+        for group in variant_groups:
+            variants = self.fetch_each_variant(group['ID'])
+            if variants:
+                all_variants.extend(variants)
+
+        return all_variants
+
+    def update_customer_feedback(self, order_id, stars, reasons):
+        reason_vote = "|".join(reasons) if reasons else ""
+        query = "UPDATE `order` SET customer_vote = %s, reason_vote = %s WHERE ID = %s"
+        return self.do_any_sql(query, stars, reason_vote, order_id)
+
+if __name__ == "__main__":
+    db = Database()
+    query = """
+                    SELECT fi.ID,
+                           fi.Name,
+                           fi.IsBestSeller,
+                           fh.Price,
+                           CAST(IF(pfi.FoodItemID IS NOT NULL, 
+                                   IF(p.IsPercent, fh.Price*(1-(p.Discount/100)), 
+                                   fh.Price - p.Discount), 
+                               fh.Price) AS UNSIGNED) AS DiscountedPrice,
+                           fi.ImageURL,
+                           pfi.PromotionID
+                    FROM fooditem fi
+                    INNER JOIN fooditem_history fh
+                        ON fi.ID = fh.FoodItemId
+                    LEFT JOIN promotionfooditem pfi
+                        ON fi.ID = pfi.FoodItemID
+                    LEFT JOIN (SELECT * FROM promotion WHERE IsEffective = True) p
+                        ON p.ID = pfi.PromotionID
+                    WHERE (fi.IsFulltime = True 
+                           OR (fi.Days LIKE CONCAT('%%', CAST(WEEKDAY(current_timestamp) AS CHAR), '%%')
+                           AND current_time BETWEEN fi.AvailableStartTime AND fi.AvailableEndTime))
+                    AND fh.IsEffective = True;
+                """
+    items = db.fetch_data(query)
+    print(items)

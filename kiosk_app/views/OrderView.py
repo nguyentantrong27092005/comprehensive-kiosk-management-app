@@ -46,6 +46,7 @@ class OrderWidget(QtWidgets.QWidget):
         self.verticalLayout_paymentsection.addWidget(self.label_payment)
         self.label_payment.setObjectName("label_payment2")
         self.label_payment.setText("Thanh toán")
+        self.label_payment.setContentsMargins(0, 25, 0, 0)
         self.gridLayout_payment = QtWidgets.QGridLayout()
         self.gridLayout_payment.setHorizontalSpacing(2)
         self.gridLayout_payment.setVerticalSpacing(4)
@@ -140,7 +141,7 @@ class OrderItemBox(QtWidgets.QFrame):
 
     def setupUI(self):
         self.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.setMinimumSize(QtCore.QSize(0, 110))
+        self.setMinimumSize(QtCore.QSize(0, 120))
 
         self.mainLayout = QtWidgets.QHBoxLayout(self)
         self.mainLayout.setContentsMargins(5, 5, 5, 5)
@@ -221,7 +222,10 @@ class OrderItemBox(QtWidgets.QFrame):
         self.label_price = QtWidgets.QLabel(self.framePriceOrder)
         self.label_price.setObjectName("label_price")
         self.label_price.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_price.setText(f"<span style = 'color: #C0BBBB; font-size: 11px;'><s>{self.orderItem.foodItem.price:,}</s></span>{self.orderItem.foodItem.discount:,}")
+        if self.orderItem.foodItem.discounted_price != self.orderItem.foodItem.price:
+            self.label_price.setText(f"<span style = 'color: #C0BBBB; font-size: 11px;'><s>{self.orderItem.total_item_price+self.orderItem.foodItem.discount:,}</s></span>{self.orderItem.total_item_price:,}")
+        else:
+            self.label_price.setText(f"{self.orderItem.total_item_price:,}")
         self.gridLayout_price.addWidget(self.pushButton_delete, 0, 2, 2, 1)
         self.gridLayout_price.addWidget(self.label_price, 2, 0, 1, 3)
 

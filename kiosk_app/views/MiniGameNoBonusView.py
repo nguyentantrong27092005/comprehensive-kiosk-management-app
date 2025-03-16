@@ -1,5 +1,7 @@
 import os
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt
+
 
 class MiniGameNoBonus(QtWidgets.QWidget):
 
@@ -9,16 +11,17 @@ class MiniGameNoBonus(QtWidgets.QWidget):
 
     def setupUi(self):
         self.setWindowTitle("Kết Quả")
-        self.setFixedSize(398, 708)
+        self.resize(478, 592)
         self.setStyleSheet("background-color: white;")
 
         # Layout chính
         layout = QtWidgets.QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Hình ảnh minigame phần may mắn lần sau
         self.label_image_main = QtWidgets.QLabel(self)
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "bannermngame.png")
+        image_path = "kiosk_app/resources/images/bannermngame.png"
         pixmap = QtGui.QPixmap(image_path)
         self.label_image_main.setPixmap(pixmap)
         self.label_image_main.setFixedHeight(150)
@@ -31,7 +34,7 @@ class MiniGameNoBonus(QtWidgets.QWidget):
 
         # Ảnh chúc may mắn lần sau (Better Luck Next Time)
         self.label_image_noluck = QtWidgets.QLabel(self)
-        image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "lucknext.png")
+        image_path = "kiosk_app/resources/images/lucknext.png"
         pixmap = QtGui.QPixmap(image_path)
         self.label_image_noluck.setPixmap(pixmap)
         self.label_image_noluck.setScaledContents(True)
@@ -60,16 +63,11 @@ class MiniGameNoBonus(QtWidgets.QWidget):
         # Layout ngang chứa hai button
         layout_two_btns = QtWidgets.QVBoxLayout()
 
-        self.pushButton_gotocart = QtWidgets.QPushButton("Đi tới giỏ hàng", self)
-        self.pushButton_gotocart.setStyleSheet("background-color: red; color: white; font-weight: bold; font-size: 15px")
-        self.pushButton_gotocart.setFixedSize(150, 40)
+        self.pushButton_confirm = QtWidgets.QPushButton("Xác nhận", self)
+        self.pushButton_confirm.setStyleSheet("background-color: red; color: white; font-weight: bold; font-size: 15px;  border-radius: 10px;")
+        self.pushButton_confirm.setFixedSize(150, 40)
 
-        self.pushButton_back = QtWidgets.QPushButton("Bỏ qua", self)
-        self.pushButton_back.setStyleSheet("background-color: red; color: white; font-weight: bold; font-size: 15px")
-        self.pushButton_back.setFixedSize(150, 40)
-
-        layout_two_btns.addWidget(self.pushButton_gotocart, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
-        layout_two_btns .addWidget(self.pushButton_back, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+        layout_two_btns.addWidget(self.pushButton_confirm, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         layout.addLayout(layout_two_btns)
 

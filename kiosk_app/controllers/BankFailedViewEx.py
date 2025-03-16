@@ -1,10 +1,11 @@
 from common.sql_func import Database
 from kiosk_app.models.SharedDataModel import SharedDataModel
 from kiosk_app.views import BankFailedView, GeneralView
-from PyQt6.QtWidgets import QVBoxLayout, QStackedWidget
+from PyQt6.QtWidgets import QVBoxLayout
+from kiosk_app.views.CustomStackedWidget import CustomStackedWidget
 
 class BankFailedViewEx(GeneralView.GeneralView):
-    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database, title, subtitle):
+    def __init__(self, mainStackedWidget: CustomStackedWidget, sharedData: SharedDataModel, db: Database, title, subtitle):
         super().__init__()
         self.mainStackedWidget = mainStackedWidget
         self.sharedData = sharedData
@@ -26,5 +27,4 @@ class BankFailedViewEx(GeneralView.GeneralView):
         self.bankFailedView.confirmButton.clicked.connect(self.back_to_beginning)
 
     def back_to_beginning(self):
-        self.mainStackedWidget.setCurrentIndex(0)
-        self.mainStackedWidget.removeWidget(self)
+        self.mainStackedWidget.change_screen_with_index(0, self)

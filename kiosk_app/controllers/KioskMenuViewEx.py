@@ -1,18 +1,19 @@
 from functools import partial
 
-from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout
+from PyQt6.QtWidgets import QVBoxLayout
 
 from common.sql_func import Database
+from kiosk_app.controllers.OrderSummaryViewEx import OrderSummaryViewEx
 from kiosk_app.controllers.ToppingSelectionViewEx import ToppingSelectionEx
 
 from kiosk_app.models.FoodItem import FoodItem
 from kiosk_app.models.SharedDataModel import SharedDataModel
 from kiosk_app.views import GeneralView, KioskMenuView
 from kiosk_app.views.KioskMenuView import CategoryFrame, ProductFrame
-
+from kiosk_app.views.CustomStackedWidget import CustomStackedWidget
 
 class KioskMenuViewEx(GeneralView.GeneralView):
-    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
+    def __init__(self, mainStackedWidget: CustomStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.mainStackedWidget = mainStackedWidget
         self.sharedData = sharedData
@@ -31,20 +32,22 @@ class KioskMenuViewEx(GeneralView.GeneralView):
         self.menuLayout.setContentsMargins(0, 0, 0, 0)
         self.menuLayout.setSpacing(0)
 
+        self.kioskMenuWidget.pushButton_shoppingcart.clicked.connect(self.open_shoppingcart_view)
         self.load_categories()
-        self.load_items(category_name=None, category_id=None)
+        self.load_items(category_name="Tất cả món", category_id=None)
 
     def load_categories(self):
         category_query = "SELECT ID, Name, ImageURL FROM Category"
         categories = self.db.fetch_data(category_query) # lấy danh sách của các category (ImageURL, Name, ID)
         print(categories)
+        self.kioskMenuWidget.layout_category.addWidget(CategoryFrame("kiosk_app/resources/images/ic_alldishes.jpg", "Tất cả món", None, self))
         for category in categories:
             category = CategoryFrame(category["ImageURL"], category["Name"], category["ID"], self)
             self.kioskMenuWidget.layout_category.addWidget(category)
         return categories
 
     def load_items(self, category_name, category_id=None):
-        if category_id and category_name:
+        if category_id and category_name != "Tất cả món":
             self.kioskMenuWidget.groupbox_item.setTitle(category_name)
             self.kioskMenuWidget.groupbox_item.delete_product()
 
@@ -76,6 +79,7 @@ class KioskMenuViewEx(GeneralView.GeneralView):
             #print(f"Dữ liệu trả về: {items}")
 
         else:
+            self.kioskMenuWidget.groupbox_item.setTitle(category_name)
             query = """
                 SELECT fi.ID,
                        fi.Name,
@@ -129,7 +133,11 @@ class KioskMenuViewEx(GeneralView.GeneralView):
         )
         self.sharedData.set_selected_item(food_item)
         self.show_addToppingView()
+
     def show_addToppingView(self):
-        addToppingView = ToppingSelectionEx(self.mainStackedWidget, self.sharedData, self.db) # CHECK GIÙM EM KHÚC NÀY
-        self.mainStackedWidget.addWidget(addToppingView)
-        self.mainStackedWidget.setCurrentWidget(addToppingView)
+        addToppingView = ToppingSelectionEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.change_screen(addToppingView)
+
+    def open_shoppingcart_view(self):
+        orderSummaryView = OrderSummaryViewEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.change_screen(orderSummaryView)

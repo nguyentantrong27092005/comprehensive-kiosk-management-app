@@ -262,6 +262,11 @@ class Database:
 
         return all_variants
 
+    def update_customer_feedback(self, order_id, stars, reasons):
+        reason_vote = "|".join(reasons) if reasons else ""
+        query = "UPDATE `order` SET customer_vote = %s, reason_vote = %s WHERE ID = %s"
+        return self.do_any_sql(query, stars, reason_vote, order_id)
+
 if __name__ == "__main__":
     db = Database()
     query = """

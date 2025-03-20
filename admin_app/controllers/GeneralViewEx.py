@@ -233,9 +233,3 @@ class GeneralViewEx(GeneralView):
         self.update_highlighted_dates()
         self.calendarFrame.show()
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    window = GeneralViewEx()
-    window.show()
-    sys.exit(app.exec())

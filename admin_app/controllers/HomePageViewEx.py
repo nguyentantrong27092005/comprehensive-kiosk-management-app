@@ -2,7 +2,7 @@ import textwrap
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import  QDate
 from PyQt6.QtWidgets import QStackedWidget, QTableWidget
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -107,11 +107,15 @@ class HomePageViewController(HomePageView):
         return result
 
     def top5BestSeller(self):
-        sql ="""SELECT f.Name AS TenMon, 
-                        SUM(o.Amount * o.Price) AS DoanhThu
-                FROM fooditem f
-                LEFT JOIN orderdetails o ON f.ID = o.FoodItemID
-                WHERE o.CreateAt >= DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
+        sql ="""SELECT 
+                    f.Name AS TenMon,
+                    SUM(od.Amount) AS SoLuongBan,
+                    SUM(od.Amount * od.Price) AS DoanhThu
+                FROM kioskapp.fooditem f
+                JOIN kioskapp.orderdetails od ON f.ID = od.FoodItemID
+                JOIN kioskapp.order o ON od.OrderID = o.ID
+                WHERE o.Status = 'Done'  
+                      AND o.CreateAt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
                 GROUP BY f.Name
                 ORDER BY DoanhThu DESC
                 LIMIT 5;        
@@ -170,7 +174,8 @@ class HomePageViewController(HomePageView):
         ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x:,.0f}'))
         ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
         ax.bar(df["Ngay"], df["DoanhThu"], color="#bd1906", width=0.3)
-        # ax.grid(axis="y", linestyle="-", alpha=0.7)
+        ax.set_ylabel("Doanh thu (VNĐ)", fontsize=8, color="#ababab", rotation=0)
+        ax.yaxis.set_label_coords(-0.1, 1.02)
         plt.xticks(rotation=0, fontsize=8)
         plt.yticks(fontsize=8)
         plt.tight_layout()
@@ -200,7 +205,8 @@ class HomePageViewController(HomePageView):
         ax.yaxis.set_major_formatter(mticker.StrMethodFormatter('{x:,.0f}'))
 
         ax.set_xlabel("")
-        ax.set_ylabel("")
+        ax.set_ylabel("Doanh thu (VNĐ)", fontsize=8, color="#ababab", rotation=0)
+        ax.yaxis.set_label_coords(-0.1, 1.02)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         legend = ax.legend(loc="upper center",bbox_to_anchor=(0.5, -0.2), frameon=False, fontsize=8, ncol= 2,  handletextpad=0.5)
@@ -219,13 +225,19 @@ class HomePageViewController(HomePageView):
         self.tableWidgetTop5BestSeller.verticalHeader().setVisible(False)
         self.tableWidgetTop5BestSeller.setRowCount(len(inputData))
         self.tableWidgetTop5BestSeller.setColumnCount(3)
-        self.tableWidgetTop5BestSeller.horizontalHeader().setHighlightSections(False)
+        self.tableWidgetTop5BestSeller.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection)
         self.tableWidgetTop5BestSeller.setHorizontalHeaderLabels(['STT', 'Tên sản phẩm', 'Doanh thu'])
 
         for row, fooditem in enumerate(inputData):
-            self.tableWidgetTop5BestSeller.setItem(row, 0, QtWidgets.QTableWidgetItem(str(row+1)))
+            item_stt = QtWidgets.QTableWidgetItem(str(row + 1))
+            item_stt.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            self.tableWidgetTop5BestSeller.setItem(row, 0, item_stt)
+
             self.tableWidgetTop5BestSeller.setItem(row, 1, QtWidgets.QTableWidgetItem(str(fooditem['TenMon'])))
-            self.tableWidgetTop5BestSeller.setItem(row, 2,QtWidgets.QTableWidgetItem(f"{fooditem['DoanhThu']:,}"))
+
+            item_doanhthu = QtWidgets.QTableWidgetItem(f"{fooditem['DoanhThu']:,}")
+            item_doanhthu.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
+            self.tableWidgetTop5BestSeller.setItem(row, 2, item_doanhthu)
 
         self.tableWidgetTop5BestSeller.setStyleSheet("""
             QHeaderView::section {

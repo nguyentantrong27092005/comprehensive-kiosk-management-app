@@ -1,3 +1,4 @@
+import sys
 import textwrap
 
 import matplotlib.pyplot as plt
@@ -9,19 +10,22 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 
+from admin_app.controllers.PaymentSelectStatisticViewEx import PaymentSelectViewStatisticsEx
+from admin_app.models.SharedDataModel import SharedDataModel
 from admin_app.views.HomePageView import HomePageView
 from common.sql_func import Database
 
-class HomePageViewController(HomePageView):
-    def __init__(self,mainStackedWidget: QStackedWidget, db: Database):
+class HomePageViewEx(HomePageView):
+    def __init__(self,mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.mainStackedWidget = mainStackedWidget
         self.db = db
+        self.sharedData = sharedData
         self.colors = ['#991203','#BD1906', '#CA4738', '#EBBAB4','#F8E8E6']
         self.updateUI()
     def updateUI(self):
         self.currentDate = QDate.currentDate()
-        self.selectedDateLineEdit.setText(f"Hôm nay {self.currentDate.toString("dd/MM")}")
+        self.selectedDateLineEdit.setText(f"Hôm nay {self.currentDate.toString('dd/MM')}")
         self.compareLastDayLabel.setText(f"so với hôm qua {self.currentDate.addDays(-1).toString('dd/MM')}")
         self.selectedDateLineEdit.setReadOnly(True)
 
@@ -75,18 +79,23 @@ class HomePageViewController(HomePageView):
         self.labelDetailTop5.mousePressEvent = lambda event: self.detailTop5()
         self.labelDetailReview.mousePressEvent = lambda event: self.detailReview()
         self.pushButtonAI.clicked.connect(self.openWindowAI)
+        self.pushButtonBaoCao.clicked.connect(self.openBaoCaoDetails)
     def detailRevenue(self):
         pass
     def detailPromotion(self):
         pass
     def detailPayment(self):
-        pass
+        paymentSelectStatisticView = PaymentSelectViewStatisticsEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.setCurrentWidget(paymentSelectStatisticView)
     def detailTop5(self):
-        pass
+        paymentSelectStatisticView = Banch(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.setCurrentWidget(paymentSelectStatisticView)
     def detailReview(self):
         pass
     def openWindowAI(self):
         pass
+    def openBaoCaoDetails(self):
+        self.
 
     def percentReivew(self):
         sql = """
@@ -326,3 +335,13 @@ class HomePageViewController(HomePageView):
         AND DATE(CreateAt) = %s;"""
         result = self.db.fetch_data(sql, f"{self.currentDate.toString('yyyy-MM-dd')}")
         return result[0]['SoHoaDonDãngXuLy']
+
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    mainStackedWidget = QtWidgets.QStackedWidget()
+    sharedData = SharedDataModel()
+    db = Database()
+    window = HomePageViewEx(mainStackedWidget, sharedData, db)
+    window.show()
+    sys.exit(app.exec())

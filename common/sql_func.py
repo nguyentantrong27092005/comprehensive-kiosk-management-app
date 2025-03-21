@@ -196,7 +196,142 @@ class Database:
         finally:
             # Close the cursor and connection
             cursor.close()
-            conn.close()
+            self.conn.close()
+
+    def fetch_user(self, email):
+        """Lấy thông tin người dùng từ database theo email"""
+        if not self.conn:
+            print("Không có kết nối đến cơ sở dữ liệu.")
+            return None
+
+        query = """SELECT Email, PasswordHash, PasswordSalt FROM user WHERE Email = %s;"""
+        try:
+            self.cursor.execute(query, (email,))
+            return self.cursor.fetchone()
+        except pymysql.MySQLError as e:
+            print(f"Lỗi truy vấn fetch_user: {e}")
+            return None
+
+    def fetch_categories(self):
+        query = """
+           SELECT DISTINCT c.ID, c.Name
+           FROM Category c
+           """
+
+        try:
+            with pymysql.connect(
+                    host=self.host, user=self.user, password=self.password,
+                    database=self.database, port=self.port, cursorclass=pymysql.cursors.DictCursor
+            ) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query)
+                    categories = [row["Name"] for row in cursor.fetchall()]
+                    print("Fetched categories:", categories)  # Log để kiểm tra
+                    return categories
+        except pymysql.MySQLError as err:
+            QMessageBox.critical(None, "Database Error", f"Lỗi truy vấn nhóm món: {err}")
+            return []
+
+    def fetch_topgroup(self, FoodItemID):
+       # Dựa vào ID --> Lấy danh sách nhóm topping
+       query = """SELECT tg.ID, tg.Name
+                   FROM toppinggroupfooditem tgfi
+                   INNER JOIN toppinggroup tg ON tg.ID = tgfi.ToppingGroupID
+                   WHERE tgfi.FoodItemID = %s;"""
+       return self.fetch_data(query, FoodItemID)
+
+    def fetch_each_top(self, ToppingGroupID):
+        query = """SELECT t.ID,
+                   fi.Name,
+                   fh.Price, 
+                   CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price * (1 - (p.Discount / 100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice,
+                   fi.ImageURL
+            FROM topping t
+            INNER JOIN fooditem fi ON fi.ID = t.FoodItemID
+            INNER JOIN fooditem_history fh ON fi.ID = fh.FoodItemID
+            LEFT JOIN promotionfooditem pfi ON fi.ID = pfi.FoodItemID
+            LEFT JOIN promotion p ON p.ID = pfi.PromotionID
+            WHERE t.ToppingGroupID = %s;"""
+        return self.fetch_data(query, ToppingGroupID)
+
+    def fetch_all_toppings(self, FoodItemID):
+        # Lấy toàn bộ danh sách topping dựa vào FoodItemID
+        topping_groups = self.fetch_topgroup(FoodItemID)
+        print(topping_groups)
+        if not topping_groups:
+            print("Không có nhóm topping nào cho món ăn này.")
+            return []
+
+        all_toppings = []
+        for group in topping_groups:
+            toppings = self.fetch_each_top(group['ID'])
+            if toppings:
+                all_toppings.extend(toppings)
+
+        return all_toppings
+
+    def fetch_variantgroup(self, FoodItemID):
+        """Dụa vào ID --> Lấy hết các variant group"""
+        query = """SELECT vg.ID, vg.Name, vg.IsRequired, vg.ViewType, vg.HasPrice
+                          FROM variantgroupfooditem vgfi
+                          INNER JOIN variantgroup vg ON vg.ID = vgfi.VariantGroupID
+                          WHERE vgfi.FoodItemID = %s;"""
+        return self.fetch_data(query, FoodItemID)
+
+    def fetch_each_variant(self, VariantGroupID):
+        # Dựa vào ID variant grouup --> Lấy hết các variant trong group đó
+        query = """SELECT ID, Value, Price, AdditionalCost
+                          FROM variant
+                          WHERE variantGroupID = %s;"""
+        return self.fetch_data(query, VariantGroupID)
+
+    def fetch_all_variants(self, FoodItemID):
+        # Lấy toàn bộ danh sách variant
+        variant_groups = self.fetch_variantgroup(FoodItemID)
+        if not variant_groups:
+            return []
+
+        all_variants = []
+        for group in variant_groups:
+            variants = self.fetch_each_variant(group['ID'])
+            if variants:
+                all_variants.extend(variants)
+
+        return all_variants
+
+    def update_customer_feedback(self, order_id, stars, reasons):
+        reason_vote = "|".join(reasons) if reasons else ""
+        query = "UPDATE `order` SET customer_vote = %s, reason_vote = %s WHERE ID = %s"
+        return self.do_any_sql(query, stars, reason_vote, order_id)
+
+    def fetch_all_orders(self, start_date=None, end_date=None):
+        if self.conn is None:
+            print("không thể thực hiện truy vấn vì kết nối database thất bại.")
+            return None
+        try:
+            query = """
+            SELECT Payment, TotalPrice, CreateAt
+            FROM `order`
+            """
+            params = ()
+
+            if start_date and end_date:
+                if len(start_date) == 10:
+                    start_date += " 00:00:00"
+                if len(end_date) == 10:
+                    end_date += " 23:59:59"
+
+                query += " WHERE CreateAt BETWEEN %s AND %s"
+                params = (start_date, end_date)
+
+            query += " ORDER BY CreateAt DESC;"
+            self.cursor.execute(query, params)
+            all_orders = self.cursor.fetchall()
+            return all_orders
+        except pymysql.MySQLError as e:
+            print(f"Lỗi truy vấn MySQL: {e.args}")
+            return None
+
 
 
 class DatabaseManager:
@@ -355,102 +490,8 @@ class DatabaseManager:
             QMessageBox.critical(None, "Database Error", f"Lỗi truy vấn dữ liệu: {err}")
             return []
 
-    def fetch_categories(self):
-        query = """
-           SELECT DISTINCT c.ID, c.Name
-           FROM Category c
-           """
 
-        try:
-            with pymysql.connect(
-                    host=self.host, user=self.user, password=self.password,
-                    database=self.database, port=self.port, cursorclass=pymysql.cursors.DictCursor
-            ) as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(query)
-                    categories = [row["Name"] for row in cursor.fetchall()]
-                    print("Fetched categories:", categories)  # Log để kiểm tra
-                    return categories
-        except pymysql.MySQLError as err:
-            QMessageBox.critical(None, "Database Error", f"Lỗi truy vấn nhóm món: {err}")
-            return []
-=======
-        # finally:
-        #     # Close the cursor and connection
-        #     cursor.close()
-        #     conn.close()
 
-    def fetch_topgroup(self, FoodItemID):
-       # Dựa vào ID --> Lấy danh sách nhóm topping
-       query = """SELECT tg.ID, tg.Name
-                   FROM toppinggroupfooditem tgfi
-                   INNER JOIN toppinggroup tg ON tg.ID = tgfi.ToppingGroupID
-                   WHERE tgfi.FoodItemID = %s;"""
-       return self.fetch_data(query, FoodItemID)
-
-    def fetch_each_top(self, ToppingGroupID):
-        query = """SELECT t.ID,
-                   fi.Name,
-                   fh.Price, 
-                   CAST(IF(pfi.FoodItemID IS NOT NULL, IF(p.IsPercent, fh.Price * (1 - (p.Discount / 100)), fh.Price - p.Discount), fh.Price) AS UNSIGNED) AS DiscountedPrice,
-                   fi.ImageURL
-            FROM topping t
-            INNER JOIN fooditem fi ON fi.ID = t.FoodItemID
-            INNER JOIN fooditem_history fh ON fi.ID = fh.FoodItemID
-            LEFT JOIN promotionfooditem pfi ON fi.ID = pfi.FoodItemID
-            LEFT JOIN promotion p ON p.ID = pfi.PromotionID
-            WHERE t.ToppingGroupID = %s;"""
-        return self.fetch_data(query, ToppingGroupID)
-
-    def fetch_all_toppings(self, FoodItemID):
-        # Lấy toàn bộ danh sách topping dựa vào FoodItemID
-        topping_groups = self.fetch_topgroup(FoodItemID)
-        print(topping_groups)
-        if not topping_groups:
-            print("Không có nhóm topping nào cho món ăn này.")
-            return []
-
-        all_toppings = []
-        for group in topping_groups:
-            toppings = self.fetch_each_top(group['ID'])
-            if toppings:
-                all_toppings.extend(toppings)
-
-        return all_toppings
-
-    def fetch_variantgroup(self, FoodItemID):
-        """Dụa vào ID --> Lấy hết các variant group"""
-        query = """SELECT vg.ID, vg.Name, vg.IsRequired, vg.ViewType, vg.HasPrice
-                          FROM variantgroupfooditem vgfi
-                          INNER JOIN variantgroup vg ON vg.ID = vgfi.VariantGroupID
-                          WHERE vgfi.FoodItemID = %s;"""
-        return self.fetch_data(query, FoodItemID)
-
-    def fetch_each_variant(self, VariantGroupID):
-        # Dựa vào ID variant grouup --> Lấy hết các variant trong group đó
-        query = """SELECT ID, Value, Price, AdditionalCost
-                          FROM variant
-                          WHERE variantGroupID = %s;"""
-        return self.fetch_data(query, VariantGroupID)
-
-    def fetch_all_variants(self, FoodItemID):
-        # Lấy toàn bộ danh sách variant
-        variant_groups = self.fetch_variantgroup(FoodItemID)
-        if not variant_groups:
-            return []
-
-        all_variants = []
-        for group in variant_groups:
-            variants = self.fetch_each_variant(group['ID'])
-            if variants:
-                all_variants.extend(variants)
-
-        return all_variants
-
-    def update_customer_feedback(self, order_id, stars, reasons):
-        reason_vote = "|".join(reasons) if reasons else ""
-        query = "UPDATE `order` SET customer_vote = %s, reason_vote = %s WHERE ID = %s"
-        return self.do_any_sql(query, stars, reason_vote, order_id)
 
 if __name__ == "__main__":
     db = Database()
@@ -480,49 +521,4 @@ if __name__ == "__main__":
     items = db.fetch_data(query)
     print(items)
 
-
-class Database_LoginApp:
-    def __init__(self, host="34.80.75.195", user="dev", password="KTLTnhom4@", database="kioskapp", port=3306):
-        try:
-            self.connection = pymysql.connect(
-                host=host,
-                user=user,
-                password=password,
-                database=database,
-                port=port,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            self.cursor = self.connection.cursor()
-            print("Kết nối thành công!")
-        except pymysql.MySQLError as e:
-            self.connection = None
-            print(f"Lỗi kết nối MySQL: {e.args}")
-
-    def fetch_all_orders(self, start_date=None, end_date=None):
-        if self.connection is None:
-            print("không thể thực hiện truy vấn vì kết nối database thất bại.")
-            return None
-        try:
-            query = """
-            SELECT Payment, TotalPrice, CreateAt
-            FROM `order`
-            """
-            params = ()
-
-            if start_date and end_date:
-                if len(start_date) == 10:
-                    start_date += " 00:00:00"
-                if len(end_date) == 10:
-                    end_date += " 23:59:59"
-
-                query += " WHERE CreateAt BETWEEN %s AND %s"
-                params = (start_date, end_date)
-
-            query += " ORDER BY CreateAt DESC;"
-            self.cursor.execute(query, params)
-            all_orders = self.cursor.fetchall()
-            return all_orders
-        except pymysql.MySQLError as e:
-            print(f"Lỗi truy vấn MySQL: {e.args}")
-            return None
 

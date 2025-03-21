@@ -4,39 +4,11 @@ import pymysql
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QMessageBox, QApplication, QStackedWidget
 from admin_app.views.LoginAppView import LoginAppWidget
+from common.sql_func import Database
 from kiosk_app.models.SharedDataModel import SharedDataModel
 
-class Database_LoginApp:
-    def __init__(self):
-        try:
-            self.connection = pymysql.connect(
-                host="34.101.167.101",
-                user="dev",
-                password="12345678x@X",
-                database="kioskapp",
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            self.cursor = self.connection.cursor()
-        except pymysql.MySQLError as e:
-            print(f"Lỗi kết nối DB: {e}")
-            self.connection = None
-
-    def fetch_user(self, email):
-        """Lấy thông tin người dùng từ database theo email"""
-        if not self.connection:
-            print("Không có kết nối đến cơ sở dữ liệu.")
-            return None
-
-        query = """SELECT Email, PasswordHash, PasswordSalt FROM user WHERE Email = %s;"""
-        try:
-            self.cursor.execute(query, (email,))
-            return self.cursor.fetchone()
-        except pymysql.MySQLError as e:
-            print(f"Lỗi truy vấn fetch_user: {e}")
-            return None
-
 class LoginAppViewEx(LoginAppWidget):
-    def __init__(self, mainStackedWidget: QtWidgets.QStackedWidget, sharedData, db):
+    def __init__(self, mainStackedWidget: QtWidgets.QStackedWidget, sharedData, db: Database):
         super().__init__()
         self.sharedData = sharedData
         self.db = db
@@ -78,7 +50,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     mainStackedWidget = QtWidgets.QStackedWidget()
     sharedData = SharedDataModel()
-    db = Database_LoginApp()
+    db = Database()
     window = LoginAppViewEx(mainStackedWidget, sharedData, db)
     window.show()
     sys.exit(app.exec())

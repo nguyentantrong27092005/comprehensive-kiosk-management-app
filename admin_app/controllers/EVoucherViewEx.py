@@ -1,20 +1,22 @@
+import sys
 from datetime import datetime, date, timedelta
 from heapq import nlargest
 
 import pandas as pd
+from PyQt6 import QtWidgets
 from PyQt6.QtCore import QDate
-from PyQt6.QtWidgets import QApplication, QVBoxLayout, QFileDialog, QMessageBox
+from PyQt6.QtWidgets import QApplication, QVBoxLayout, QFileDialog, QMessageBox, QStackedWidget
 from collections import defaultdict
 
 from admin_app.controllers.GeneralViewEx import GeneralViewEx
+from admin_app.models.SharedDataModel import SharedDataModel
 from admin_app.views import EVoucherView
 from admin_app.views.GeneralView import GeneralView
 from common.sql_func import Database
-from kiosk_app.views.CustomStackedWidget import CustomStackedWidget
 
 
 class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
-    def __init__(self, mainStackedWidget: CustomStackedWidget, db: Database):
+    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.mainStackedWidget = mainStackedWidget
         self.db = db
@@ -254,3 +256,13 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
             QMessageBox.information(self, "Thành công", f"Đã xuất file Excel tại {file_path}")
         except Exception as e:
             QMessageBox.warning(self, "Lỗi", f"Lỗi khi xuất file Excel: {e}")
+
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    mainStackedWidget = QtWidgets.QStackedWidget()
+    sharedData = SharedDataModel()
+    db = Database()
+    window = EVoucherWidgetViewEx(mainStackedWidget, sharedData, db)
+    window.show()
+    sys.exit(app.exec())

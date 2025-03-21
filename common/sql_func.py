@@ -479,3 +479,50 @@ if __name__ == "__main__":
                 """
     items = db.fetch_data(query)
     print(items)
+
+
+class Database_LoginApp:
+    def __init__(self, host="34.80.75.195", user="dev", password="KTLTnhom4@", database="kioskapp", port=3306):
+        try:
+            self.connection = pymysql.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database,
+                port=port,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            self.cursor = self.connection.cursor()
+            print("Kết nối thành công!")
+        except pymysql.MySQLError as e:
+            self.connection = None
+            print(f"Lỗi kết nối MySQL: {e.args}")
+
+    def fetch_all_orders(self, start_date=None, end_date=None):
+        if self.connection is None:
+            print("không thể thực hiện truy vấn vì kết nối database thất bại.")
+            return None
+        try:
+            query = """
+            SELECT Payment, TotalPrice, CreateAt
+            FROM `order`
+            """
+            params = ()
+
+            if start_date and end_date:
+                if len(start_date) == 10:
+                    start_date += " 00:00:00"
+                if len(end_date) == 10:
+                    end_date += " 23:59:59"
+
+                query += " WHERE CreateAt BETWEEN %s AND %s"
+                params = (start_date, end_date)
+
+            query += " ORDER BY CreateAt DESC;"
+            self.cursor.execute(query, params)
+            all_orders = self.cursor.fetchall()
+            return all_orders
+        except pymysql.MySQLError as e:
+            print(f"Lỗi truy vấn MySQL: {e.args}")
+            return None
+

@@ -1,5 +1,7 @@
 import os
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt
+
 
 class MiniGameBonus(QtWidgets.QWidget):
 
@@ -9,17 +11,18 @@ class MiniGameBonus(QtWidgets.QWidget):
 
     def setupUi(self):
         self.setWindowTitle("Kết Quả")
-        self.setFixedSize(398, 708)
+        self.resize(478, 592)
 
         # Nền trắng
         self.setStyleSheet("background-color: white;")
 
         layout_vertical = QtWidgets.QVBoxLayout(self)
+        layout_vertical.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Hình ảnh minigame phần may mắn
         self.label_image_luck = QtWidgets.QLabel(self)
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "bannermngame.png")
+        image_path = "kiosk_app/resources/images/bannermngame.png"
         pixmap = QtGui.QPixmap(image_path)
         self.label_image_luck.setPixmap(pixmap)
         self.label_image_luck.setScaledContents(True)
@@ -34,7 +37,7 @@ class MiniGameBonus(QtWidgets.QWidget):
 
         # Hình ảnh mã voucher
         self.label_image_voucher = QtWidgets.QLabel()
-        image_path = os.path.join(base_dir, "..", "kiosk_app", "resources", "images", "voucher.png")
+        image_path = "kiosk_app/resources/images/voucher.png"
         pixmap = QtGui.QPixmap(image_path)
         self.label_image_voucher.setPixmap(pixmap)
         self.label_image_voucher.setScaledContents(True)
@@ -51,16 +54,10 @@ class MiniGameBonus(QtWidgets.QWidget):
         layout_two_btns = QtWidgets.QVBoxLayout()
 
         # Button đi đến giỏ hàng
-        self.button_gotocart = QtWidgets.QPushButton("Đi đến giỏ hàng")
-        self.button_gotocart.setStyleSheet("background-color: red; color: white; font-size: 15px; font-weight: bold;")
-        self.button_gotocart.setFixedSize(150, 40)
-        layout_two_btns.addWidget(self.button_gotocart, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
-
-        # Button bỏ qua
-        self.button_back = QtWidgets.QPushButton("Bỏ qua")
-        self.button_back.setStyleSheet("background-color: red; color: white; font-size: 15px; font-weight: bold;")
-        self.button_back.setFixedSize(150, 40)
-        layout_two_btns.addWidget(self.button_back, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.button_confirm = QtWidgets.QPushButton("Xác nhận")
+        self.button_confirm.setStyleSheet("background-color: red; color: white; font-size: 15px; font-weight: bold; border-radius: 10px;")
+        self.button_confirm.setFixedSize(150, 40)
+        layout_two_btns.addWidget(self.button_confirm, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         layout_vertical.addLayout(layout_two_btns)
 

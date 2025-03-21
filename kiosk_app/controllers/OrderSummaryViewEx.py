@@ -1,6 +1,6 @@
 from PyQt6 import QtCore
 
-from PyQt6.QtWidgets import QVBoxLayout, QStackedWidget
+from PyQt6.QtWidgets import QVBoxLayout
 
 from common.sql_func import Database
 from kiosk_app.models.FoodItem import FoodItem
@@ -10,11 +10,12 @@ from kiosk_app.models.ToppingVariant import Variant, Topping
 from kiosk_app.views import GeneralView
 from kiosk_app.views.OrderView import OrderWidget, OrderItemBox
 from kiosk_app.controllers.PaymentSelectViewEx import PaymentSelectViewEx
+from kiosk_app.views.CustomStackedWidget import CustomStackedWidget
 
 
 class OrderSummaryViewEx(GeneralView.GeneralView):
 
-    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
+    def __init__(self, mainStackedWidget: CustomStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.sharedData = sharedData
         self.db = db
@@ -25,11 +26,10 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         # Thêm vào frame chung
         self.orderSummaryVLayout = QVBoxLayout(self.frame_chung)
         # Tuỳ chỉnh màn hình
-        self.resize(398, 708)
+        self.resize(398, 500)
         self.orderSummaryVLayout.addWidget(self.orderWidget)
         self.orderSummaryVLayout.setContentsMargins(0, 0, 0, 0)
         self.frame_chung.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.test()
         self.addOrderItemBox()
         self.signalAndSlot_OrderWidget()
         # Else
@@ -38,49 +38,51 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         """Xử lý logic áp dụng voucher
         :return: str: cảnh báo | dict: evouchergiamgia | list: freeitem | None"""
         if not voucher:
+            self.reset_voucher_order()
             return None
         #TH Giám giá
         evoug = self.checkisEffectiveGiamGia(voucher)
         if isinstance(evoug, list):
-            if self.sharedData.order.evoucherTangmonId:
+            if self.sharedData.order.evoucherGiamGiaId is None and self.sharedData.order.isAppliedVoucher:
                 self.removeFreeItem()
-                self.sharedData.order.evoucherTangmonId = None
             evoug = evoug[0]
             result = self.sharedData.order.update_evoucher_discount(isPercent=evoug['IsPercent'], discountValue=evoug['Discount'], minimumPrice=evoug['MinimumPrice'], maximumDiscount=evoug['MaximumDiscount'])
             if result:
                 self.updatePrice(False)
                 self.sharedData.order.evoucherGiamGiaId = evoug['ID']
-                self.sharedData.order.evoucherTangmonId = None
-                self.updatePrice(False)
+                self.sharedData.order.isAppliedVoucher = True
                 return evoug
             else:
+                self.reset_voucher_order()
                 return "Bạn chưa đủ điều kiện áp dụng mã voucher này."
         #TH Tặng món
-        evout, evou = self.checkIsEffectiveTangMon(voucher)
-        if isinstance(evout, list):
-            freeItems = []
-            if self.sharedData.order.evoucherTangmonId:
-                self.removeFreeItem()
-                self.sharedData.order.evoucherTangmonId = None
-            for item in evout:
-                if totalPrice > item['MinimumPrice']:
-                    freeItems.append(item)
-            if not freeItems:
-                return "Bạn không đủ điều kiện để áp dụng mã voucher này."
+        else:
+            evout, evou = self.checkIsEffectiveTangMon(voucher)
+            if isinstance(evout, list):
+                freeItems = []
+                if self.sharedData.order.evoucherGiamGiaId is None and self.sharedData.order.isAppliedVoucher:
+                    self.removeFreeItem()
+                elif self.sharedData.order.evoucherGiamGiaId is not None and self.sharedData.order.isAppliedVoucher:
+                    self.reset_voucher_order()
+                if self.sharedData.order.totalPrice > freeItems[0]['MinimumPrice']:
+                    for item in evout:
+                        freeItems.append(item)
+                    self.addFreeItem(freeItems)
+                    self.sharedData.order.isAppliedVoucher = True
+                    return freeItems
             else:
-                self.addFreeItem(freeItems)
-                self.sharedData.order.evoucherGiamGiaId = None
-                self.sharedData.order.evoucherTangmonId = evou[0]['ID']
-                return freeItems
-        if isinstance(evoug, str) and isinstance(evout, str):
-            return evoug
+                self.reset_voucher_order()
+                return "Bạn không đủ điều kiện để áp dụng mã voucher này."
+
+        # if isinstance(evoug, str) and isinstance(evout, str):
+        #     return evoug
     def removeFreeItem(self):
         """Hàm dùng để xoá tất cả freeItem có trong giỏ hàng và update lại giỏ hàng"""
-        free_items = [item for item in self.sharedData.order.orderItems if item.is_free]
+        free_items = [item for item in self.sharedData.order.orderItems if item.evoucherTangMonId is not None]
         for item in free_items:
             if item.is_free:
                 print("------", item)
-                self.sharedData.order.modify_existing_order_items(item)
+                self.sharedData.order.remove_order_item(item)
         self.sharedData.order.evoucherDiscount = 0
         self.updateOrder()
 
@@ -88,7 +90,7 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         self.sharedData.order.evoucherDiscount = 0
         for item in freeItems:
             fooditem = FoodItem(item['ID'], item['Name'], item['Price'], item['DiscountedPrice'], item['ImageURL'], item['IsBestSeller'])
-            orderitem = OrderItem(fooditem, item['Amount'],"", is_free=True)# chuyển note = None
+            orderitem = OrderItem(fooditem, item['Amount'],"", evoucherTangMonId=item['EvoucherTangMonID'], is_free=True)# chuyển note = None
             self.sharedData.order.add_new_order_items([orderitem])
             # self.sharedData.order.evoucherDiscount += (item['Price'] - item['DiscountedPrice'])*item['Amount']
             self.sharedData.order.evoucherDiscount += fooditem.discount*item['Amount']
@@ -173,14 +175,24 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
             return "Rất tiếc! Mã voucher đã hết hạn sử dụng.", None
         else:
             return "Mã voucher không hợp lệ hoặc đã được sử dụng.", None
+
     def addOrderItemBox(self):
         totalitem = len(self.sharedData.order.orderItems)
         self.orderWidget.scrollAreaWidgetContents.setMinimumSize(320, 120*totalitem)
         for item in self.sharedData.order.orderItems:
             OrderItemBox = OrderItemBoxEx(item)
-            OrderItemBox.quantityChanged.connect(self.updatePrice)
+            OrderItemBox.quantityChanged.connect(self.extendUpdatePrice)
             OrderItemBox.deleteChanged.connect(self.updateOrder)
             self.orderWidget.verticalLayout_contents.addWidget(OrderItemBox)
+
+    def extendUpdatePrice(self):
+        print(f"Before update price: {self.sharedData.order.isAppliedVoucher}")
+        if self.sharedData.order.isAppliedVoucher:
+            self.processApplyVoucher()
+        else:
+            self.updatePrice()
+        print(f"After update price: {self.sharedData.order.isAppliedVoucher}")
+
     def updatePrice(self, is_all = True):
         """
         cập nhập tạm tính và tổng thanh toán
@@ -191,7 +203,9 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         self.orderWidget.lineEdit_total.setText(f"{self.sharedData.order.totalPrice - self.sharedData.order.evoucherDiscount:,}")
         if is_all:
             self.orderWidget.lineEdit_totaltemp.setText(f"{self.sharedData.order.totalPrice-self.sharedData.order.evoucherDiscount:,}")
-    def updateOrder(self, orderitem=None, is_free = False):
+
+
+    def updateOrder(self, deleted_orderitem=None, is_free = False):
         """
         :param : id = None| id = fooditemID --> Xoá orderitem trên db
         """
@@ -199,8 +213,8 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
             item = self.orderWidget.scrollAreaWidgetContents.layout().takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
-        if orderitem:
-            self.sharedData.order.modify_existing_order_items(Item=orderitem)
+        if deleted_orderitem:
+            self.sharedData.order.remove_order_item(Item=deleted_orderitem)
             self.sharedData.order.evoucherDiscount = 0# ----Đảm bảo update giá sau khi xoá sản phẩm
         # nếu xoá sp free thì phải tính lại evoucerDiscount
         if is_free:
@@ -208,22 +222,21 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
             for freeitem in self.sharedData.order.orderItems:
                 if freeitem.is_free:
                     print(freeitem)
-                    self.sharedData.order.evoucherDiscount += (freeitem.foodItem.discount)*freeitem.quantity
+                    self.sharedData.order.evoucherDiscount += (freeitem.foodItem.discounted_price)*freeitem.quantity
                     print("DISCOUNT_PRICE",freeitem.foodItem.discounted_price,"QUANTITY", freeitem.quantity)
                     print("EVOUCHERDISCOUT",self.sharedData.order.evoucherDiscount)
         self.addOrderItemBox()
         self.updatePrice()
 
-
     def signalAndSlot_OrderWidget(self):
         self.orderWidget.pushButton_payment.clicked.connect(self.processPayment)
         self.orderWidget.pushButton_apply.clicked.connect(self.processApplyVoucher)
         self.pushButton_back.clicked.connect(self.processBack)
+
     def processPayment(self):
         paymentSelectViewEx = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.addWidget(paymentSelectViewEx)
-        self.mainStackedWidget.setCurrentWidget(paymentSelectViewEx)
-        self.mainStackedWidget.removeWidget(self)
+        self.mainStackedWidget.change_screen(paymentSelectViewEx, self)
+
     def processApplyVoucher(self):
         if self.orderWidget.label_warning.text()!="":
             self.orderWidget.label_warning.hide()
@@ -234,22 +247,32 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
             self.orderWidget.gridLayout_payment.addWidget(self.orderWidget.label_warning, 2, 1, 1, 3)
             self.orderWidget.label_warning.show()
             self.sharedData.order.evoucherDiscount = 0
+            # self.reset_voucher_order()
             self.updatePrice()
+
         elif isinstance(respone, list):
             self.updatePrice(False)
+            self.sharedData.order.isAppliedVoucher = True
         elif not respone:
             print(type(respone))
             self.sharedData.order.evoucherDiscount = 0
             self.removeFreeItem()
             self.updatePrice()
-
+            self.sharedData.order.isAppliedVoucher = False
 
     def processBack(self):
-        # toppingSelectionViewEx = ToppingSelectionViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        # self.mainStackedWidget.addWidget(toppingSelectionViewEx)
-        # self.mainStackedWidget.setCurrentWidget(toppingSelectionViewEx)
-        # self.mainStackedWidget.removeWidget(self)
-        pass
+        self.mainStackedWidget.change_screen_with_index(1, self)
+        self.reset_voucher_order()
+        currentWidget = self.mainStackedWidget.currentWidget()
+        currentWidget.load_items(category_name=None, category_id=None)
+        currentWidget.kioskMenuWidget.groupbox_item.setTitle("Tất cả món")
+
+    def reset_voucher_order(self):
+        self.sharedData.order.evoucherGiamGiaId = None
+        self.sharedData.order.evoucherDiscount = 0
+        self.updateOrder()
+        self.removeFreeItem()
+        self.sharedData.order.isAppliedVoucher = False
 
     def test(self):
         """Code này để test cho dữ liệu giỏ hàng."""
@@ -295,9 +318,11 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         oi2 = OrderItem(fi2, 1, "Test02", toppingList=[fi2topping1], variantList=[fi2variant1])
         oi3 = OrderItem(fi3, 7, "Test03", variantList=[fi3variant1, fi3variant2, fi3variant3])
         self.sharedData.order.add_new_order_items([oi1, oi2, oi3])
+
 class OrderItemBoxEx(OrderItemBox):
     deleteChanged = QtCore.pyqtSignal(object, bool)
     quantityChanged = QtCore.pyqtSignal()
+
     def __init__(self,OrderItem ):
         super().__init__(OrderItem)
         if not self.layout():
@@ -306,17 +331,20 @@ class OrderItemBoxEx(OrderItemBox):
             self.label_price.setText(
                 f"<span style = 'color: #C0BBBB; font-size: 11px;'><s>{self.orderItem.foodItem.price:,}</s></span><span style = 'color: #bd1906;'>Free</span>")
         self.signalandslot()
+
     def signalandslot(self):
-        self.pushbutton_plus.clicked.connect(self.processPlusQuantity)
-        self.pushbutton_minus.clicked.connect(self.processMinusQuantity)
         self.pushButton_delete.clicked.connect(self.processDeleteOrderItem)
+        self.pushbutton_minus.clicked.connect(self.processMinusQuantity)
+        self.pushbutton_plus.clicked.connect(self.processPlusQuantity)
 
     def processPlusQuantity(self):
         if self.orderItem.is_free:#--sản phẩm tặng không cho phép thay đổi số lượng
             pass
         else:
             self.orderItem.quantity += 1
-            self. label_quantity.setText(str(self.orderItem.quantity))
+            self.orderItem.calculate_item_price()
+            self.orderItem.total_item_price = self.orderItem.calculate_item_price()
+            self.label_quantity.setText(str(self.orderItem.quantity))
             self.quantityChanged.emit()
 
     def processMinusQuantity(self):
@@ -324,7 +352,8 @@ class OrderItemBoxEx(OrderItemBox):
             pass
         elif self.orderItem.quantity > 1:
             self.orderItem.quantity -= 1
-            self. label_quantity.setText(str(self.orderItem.quantity))
+            self.orderItem.total_item_price = self.orderItem.calculate_item_price()
+            self.label_quantity.setText(str(self.orderItem.quantity))
             self.quantityChanged.emit()
 
     def processDeleteOrderItem(self):

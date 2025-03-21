@@ -1,4 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt, QTimer
 from dotenv import load_dotenv, dotenv_values
 
 class GeneralView(QtWidgets.QMainWindow):
@@ -14,6 +15,8 @@ class GeneralView(QtWidgets.QMainWindow):
         # widget trung tâm
         self.centralwidget = QtWidgets.QWidget()
         self.setCentralWidget(self.centralwidget)
+        with open("kiosk_app/resources/scrollBarStyle.css", "r") as fh:
+            self.setStyleSheet(fh.read())
 
         # layout chính (dọc), gồm 3 phần
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)

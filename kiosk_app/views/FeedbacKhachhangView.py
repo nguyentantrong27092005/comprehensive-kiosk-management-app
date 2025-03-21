@@ -73,13 +73,12 @@ class MainWindow(QWidget):
         ]
 
         self.feedback_buttons = []
-        self.update_feedback_buttons(3)  # Mặc định hiển thị phản hồi tiêu cực
 
         # Nút gửi
         self.submit_button = QPushButton(" Gửi")
         self.submit_button.setFont(QFont("Arial", 12, QFont.Weight.Bold))
         self.submit_button.setStyleSheet(
-            "background-color: red; color: white; padding: 10px; border-radius: 5px; width: 100%;")
+            "background-color: red; color: white; padding: 10px; border-radius: 10px; width: 100%;")
         self.submit_button.setIcon(QIcon("kiosk_app/resources/images/icon1.png"))
         self.submit_button.setIconSize(QSize(24, 24))
         self.submit_button.setMinimumHeight(50)
@@ -87,17 +86,6 @@ class MainWindow(QWidget):
 
         self.setLayout(layout)
 
-    def update_feedback_buttons(self, rating):
-        """Cập nhật danh sách phản hồi dựa trên số sao."""
-        for i in reversed(range(self.feedback_grid.count())):
-            self.feedback_grid.itemAt(i).widget().setParent(None)
-
-        feedback_texts = self.feedback_texts_negative if rating <= 3 else self.feedback_texts_positive
-        for i, text in enumerate(feedback_texts):
-            button = QPushButton(text)
-            button.setCheckable(True)
-            self.feedback_grid.addWidget(button, i // 2, i % 2)
-            self.feedback_buttons.append(button)
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()

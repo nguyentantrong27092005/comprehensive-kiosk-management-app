@@ -1,8 +1,10 @@
 import pymysql
 import os
 
+from PyQt6.QtWidgets import QMessageBox
 from dotenv import load_dotenv
 from kiosk_app.models.Order import Order
+from datetime import datetime, timedelta
 
 
 
@@ -190,6 +192,189 @@ class Database:
             # Rollback transaction if anything fails
             self.conn.rollback()
             print(f"❌ Transaction failed: {err}")
+
+        finally:
+            # Close the cursor and connection
+            cursor.close()
+            conn.close()
+
+
+class DatabaseManager:
+    def __init__(self, host, user, password, database, port=3306):
+        self.host = host
+        self.user = user
+        self.password = password
+        self.database = database
+        self.port = port
+
+    def fetch_data(self, start_date=None, end_date=None, keyword=None, category=None):
+        query = """
+            SELECT f.CustomID AS MaMon, f.Name AS TenMon, c.Name AS NhomMon,
+                   SUM(o.Amount) AS SoLuong, SUM(o.Discount) AS GiamGia,
+                   SUM(o.Amount * (o.Price - o.Discount)) AS DoanhThu,
+                   SUM(o.Amount * (o.Price - o.Discount)) - SUM(IFNULL(fh.Cost, 0)) AS LoiNhuan
+            FROM fooditem f
+            LEFT JOIN Category c ON c.ID = f.CategoryID
+            LEFT JOIN orderdetails o ON f.ID = o.FoodItemID
+            LEFT JOIN fooditem_history fh ON f.ID = fh.FoodItemID AND fh.IsEffective = TRUE
+        """
+
+        conditions = []
+        params = []
+
+        if start_date and end_date:
+            conditions.append("o.CreateAt BETWEEN %s AND %s")
+            params.extend([start_date, end_date])
+
+        if keyword:
+            conditions.append("f.Name LIKE %s")
+            params.append(f"%{keyword}%")
+
+        if category and category != "Tất cả nhóm món":
+            conditions.append("c.Name = %s")
+            params.append(category)
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+
+        query += " GROUP BY f.CustomID, f.Name, c.Name;"
+        print(query)
+
+        try:
+            conn = pymysql.connect(
+                host=self.host, user=self.user, password=self.password,
+                database=self.database, port=self.port, cursorclass=pymysql.cursors.DictCursor
+            )
+            with conn.cursor() as cursor:
+                cursor.execute(query, params)
+                result = cursor.fetchall()
+            conn.close()
+            return result
+
+        except pymysql.MySQLError as err:
+            QMessageBox.critical(None, "Database Error", f"Lỗi truy vấn dữ liệu: {err}")
+            return []
+
+    def fetch_top2_products(self, start_date=None, end_date=None, keyword=None, category=None):
+        if not start_date or not end_date:
+            end_date = datetime.today().strftime("%Y-%m-%d")
+            start_date = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
+
+        conditions = []
+        params = []
+
+        # if start_date and end_date:
+        #     conditions.append("o.CreateAt BETWEEN %s AND %s")
+        #     params.extend([start_date, end_date])
+
+        if keyword:
+            conditions.append("f.Name LIKE %s")
+            params.append(f"%{keyword}%")
+
+        if category and category != "Tất cả nhóm món":
+            conditions.append("EXISTS (SELECT 1 FROM Category c WHERE c.ID = f.CategoryID AND c.Name = %s)")
+            params.append(category)
+
+        # Ghép các điều kiện thành một chuỗi
+        where_clause = " AND " + " AND ".join(conditions) if conditions else ""
+
+        query = f"""
+            WITH RECURSIVE date_series AS (
+                SELECT %s AS NgayBan
+                UNION ALL
+                SELECT DATE_ADD(NgayBan, INTERVAL 1 DAY)
+                FROM date_series
+                WHERE NgayBan < %s
+            ),
+            Top2 AS (
+                SELECT o.FoodItemID, f.Name, SUM(o.Amount) AS TotalSold
+                FROM orderdetails o
+                JOIN fooditem f ON o.FoodItemID = f.ID
+                WHERE o.CreateAt BETWEEN %s AND %s
+                {where_clause}
+                GROUP BY o.FoodItemID, f.Name
+                ORDER BY TotalSold DESC
+                LIMIT 2
+            )
+            SELECT
+                ds.NgayBan,
+                t.FoodItemID,
+                t.Name,
+                COALESCE(SUM(o.Amount), 0) AS SoLuong,
+                COALESCE(SUM(o.Amount * o.Price), 0) AS DoanhThu
+            FROM date_series ds
+            CROSS JOIN Top2 t
+            LEFT JOIN orderdetails o
+                ON t.FoodItemID = o.FoodItemID
+                AND DATE(o.CreateAt) = ds.NgayBan
+            GROUP BY ds.NgayBan, t.FoodItemID, t.Name
+            ORDER BY ds.NgayBan;
+        """
+
+        # Thêm tham số vào params để đảm bảo an toàn khi thực thi SQL
+        params = [start_date, end_date, start_date, end_date] + params
+
+        # if conditions:
+        #     query += " WHERE " + " AND ".join(conditions)
+        # query_top_2 = f"""
+        #     SELECT o.FoodItemID, f.Name, SUM(o.Amount) AS TotalSold
+        #     FROM orderdetails o
+        #     JOIN fooditem f ON o.FoodItemID = f.ID
+        #     WHERE 1=1
+        #     {conditions}
+        #     GROUP BY o.FoodItemID, f.Name
+        #     ORDER BY TotalSold DESC
+        #     LIMIT 2
+        # """
+        #
+        # query = f"""
+        # SELECT
+        #     o.CreateAt,
+        #     t.FoodItemID,
+        #     t.Name,
+        #     COALESCE(SUM(o.Amount), 0) AS SoLuong,
+        #     COALESCE(SUM(o.Amount * o.Price), 0) AS DoanhThu
+        # FROM orderdetails o
+        # INNER JOIN (query_top_2) t
+        #     ON t.FoodItemID = o.FoodItemID
+        # WHERE 1=1
+        # {conditions}
+        # GROUP BY ds.NgayBan, t.FoodItemID, t.Name
+        # ORDER BY ds.NgayBan;
+        # """
+
+        try:
+            with pymysql.connect(
+                    host=self.host, user=self.user, password=self.password,
+                    database=self.database, port=self.port, cursorclass=pymysql.cursors.DictCursor
+            ) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query, params)
+                    return cursor.fetchall()
+        except pymysql.MySQLError as err:
+            QMessageBox.critical(None, "Database Error", f"Lỗi truy vấn dữ liệu: {err}")
+            return []
+
+    def fetch_categories(self):
+        query = """
+           SELECT DISTINCT c.ID, c.Name
+           FROM Category c
+           """
+
+        try:
+            with pymysql.connect(
+                    host=self.host, user=self.user, password=self.password,
+                    database=self.database, port=self.port, cursorclass=pymysql.cursors.DictCursor
+            ) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query)
+                    categories = [row["Name"] for row in cursor.fetchall()]
+                    print("Fetched categories:", categories)  # Log để kiểm tra
+                    return categories
+        except pymysql.MySQLError as err:
+            QMessageBox.critical(None, "Database Error", f"Lỗi truy vấn nhóm món: {err}")
+            return []
+=======
         # finally:
         #     # Close the cursor and connection
         #     cursor.close()
@@ -295,6 +480,7 @@ if __name__ == "__main__":
     items = db.fetch_data(query)
     print(items)
 
+
 class Database_LoginApp:
     def __init__(self, host="34.80.75.195", user="dev", password="KTLTnhom4@", database="kioskapp", port=3306):
         try:
@@ -340,4 +526,3 @@ class Database_LoginApp:
             print(f"Lỗi truy vấn MySQL: {e.args}")
             return None
 
-db = Database_LoginApp()

@@ -1,3 +1,4 @@
+from typing import List, Dict
 from PyQt6 import QtCore, QtGui, QtWidgets
 from dotenv import load_dotenv, dotenv_values
 
@@ -124,7 +125,7 @@ class GeneralView(QtWidgets.QMainWindow):
         self.hlayoutSearch.addWidget(self.lineEditSearch, 150)
         self.hlayoutSearch.addWidget(self.pushButtonSearch, 40)
         #2.2. Combo Box
-        self.comboBox = QtWidgets.QComboBox(self.frameFunc)
+        self.comboBox = QtWidgets.QComboBox(parent=self.frameFunc)
         self.comboBox.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         #2.3. Button xuất file
         self.pushButtonExport = QtWidgets.QPushButton()
@@ -174,3 +175,20 @@ class GeneralView(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "App quản lý Kiosk"))
 
+class CategoryComboBox(QtWidgets.QComboBox):
+    def __init__(self, categories: List[Dict] = [], parent=None):
+        super().__init__(parent)
+        self.categories = categories
+        self.categories.insert(0, {"ID": None, "Name": "Tất cả nhóm món"})
+        self.addItems([category["Name"] for category in self.categories])
+        self.selected_categories_id = 0
+        self.currentIndexChanged.connect(self.selectCategory)
+
+    def setListCategory(self, categories):
+        for category in categories:
+            self.categories.append(category)
+            self.addItem(category["Name"])
+
+    def selectCategory(self):
+        selected_category = self.categories[self.currentIndex()]
+        self.selected_categories_id = selected_category["ID"]

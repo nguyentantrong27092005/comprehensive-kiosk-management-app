@@ -1,22 +1,23 @@
  QScrollBar:vertical {
 	border: none;
     background: rgb(179, 179, 179);
-    width: 14px;
+    width: 8px;
     margin: 15px 0 15px 0;
-	border-radius: 7px;
+	border-radius: 3px;
  }
 
 /*  HANDLE BAR VERTICAL */
 QScrollBar::handle:vertical {
-	background-color: #BD1906;
+	background-color: #DCDCDC;
 	min-height: 30px;
-	border-radius: 7px;
+	border-radius: 3px;
 }
+
 QScrollBar::handle:vertical:hover{
-	background-color: #BD1906;
+	background-color: #DCDCDC;
 }
 QScrollBar::handle:vertical:pressed {
-	background-color: #8a2519;
+	background-color: #DCDCDC;
 }
 
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {

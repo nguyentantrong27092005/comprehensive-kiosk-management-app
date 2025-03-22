@@ -1,5 +1,4 @@
-from PyQt6.QtCore import Qt, QTimer, QSize, QRect
-from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget, QLabel
+from PyQt6.QtWidgets import QApplication, QMainWindow
 from dotenv import load_dotenv
 
 from common.sql_func import Database
@@ -19,21 +18,10 @@ class MainWindow(QMainWindow):
 
         #Tạo widget chồng để tích hợp nhiều màn hình trên cùng 1 cửa sổ
         self.setWindowTitle('Kiosk Application')
-        self.resize(478, 850)
+        self.resize(1280, 720)
 
         self.mainStackedWidget = CustomStackedWidget(self)
         self.setCentralWidget(self.mainStackedWidget)
-
-        #Countdown timer
-        self.count = 150
-        self.countdownTimerLabel = QLabel(self)
-        self.countdownTimerLabel.setObjectName("countdownTimerLabel")
-        self.countdownTimerLabel.setGeometry(QRect(410, 160, 61, 21))
-        self.countdownTimerLabel.setStyleSheet("background-color: #BD1906; font-family: Montserrat; font-size: 10px; color: white; border: 2px solid white;")
-        self.countdownTimerLabel.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.countdownTimerLabel.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-        self.countdownTimer = QTimer(self)
-        self.countdownTimer.start(1000)
 
         #Khởi tạo các class dùng chung 1 lần duy nhất
         self.sharedData = SharedDataModel()
@@ -49,7 +37,6 @@ class MainWindow(QMainWindow):
 
         #Đặt màn hình đầu tiên
         self.mainStackedWidget.setCurrentWidget(self.loginAppView)
-        # self.countdownTimerLabel.setHidden(True)
 
 
 if __name__ == "__main__":

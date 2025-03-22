@@ -23,16 +23,14 @@ class CustomStackedWidget(QStackedWidget):
             self.hide_timer()
         else:
             self.reset_timer()
-        if index == 1: #Trường hợp đặc biệt tính lại số món hàng có trong giỏ
+        if index == 1:
             kioskMenuView = self.currentWidget()
             kioskMenuView.kioskMenuWidget.pushButton_shoppingcart.icon_widget.setCount(self.mainWindow.sharedData.order.totalAmount)
 
     def reset_timer(self):
         try:
-            # Properly disconnect any existing connection
             self.mainWindow.countdownTimer.timeout.disconnect(self.show_time)
         except TypeError:
-            # If no connection exists, just ignore the error
             pass
         self.mainWindow.countdownTimerLabel.setHidden(False)
         self.mainWindow.count = 150
@@ -42,10 +40,8 @@ class CustomStackedWidget(QStackedWidget):
     def hide_timer(self):
         self.mainWindow.countdownTimerLabel.setHidden(True)
         try:
-            # Properly disconnect any existing connection
             self.mainWindow.countdownTimer.timeout.disconnect(self.show_time)
         except TypeError:
-            # If no connection exists, just ignore the error
             pass
 
     def show_time(self):

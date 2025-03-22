@@ -3,15 +3,17 @@ import datetime
 from collections import Counter
 
 import pandas as pd
-import pymysql
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QStackedWidget, QMessageBox, QFileDialog
+
 from admin_app.controllers.GeneralViewEx import GeneralViewEx
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 
+from admin_app.controllers.ViewTransitionHandler import open_evoucher_statistic_view, open_best_seller_statistic_view, \
+    open_home_view
 from admin_app.models.EnumClasses import PaymentMethod
 from admin_app.models.SharedDataModel import SharedDataModel
 from common.sql_func import Database
@@ -19,16 +21,19 @@ from common.sql_func import Database
 
 class PaymentSelectViewStatisticsEx(GeneralViewEx):
 
-    def __init__(self, mainStackedWidget: QStackedWidget, sharedData, db: Database):
+    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.setWindowTitle("Báo cáo phương thức thanh toán")
         self.main_layout = QtWidgets.QVBoxLayout(self.frameContent)
         self.db = db
+        self.sharedData = sharedData
+        self.mainStackedWidget = mainStackedWidget
         self.init_ui()
         # Gọi hai hàm tạo bảng và đường luôn --> hiển thị dữ liệu thống kê 1 tháng gần nhất
         self.start_date = self.getStartDate()
         self.end_date= self.getEndDate()
         self.create_update_charts(self.start_date, self.end_date)
+        self.labelEmail.setText(self.sharedData.signed_in_username)
         self.pushButtonPaymentMethod.setStyleSheet(
             "background-color: white; color: red; font-size: 14px; font-weight: bold;")
         self.select_button.clicked.connect(self.showDateSelected)
@@ -36,6 +41,14 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
         self.lineEditSearch.setHidden(True)
         self.pushButtonSearch.setHidden(True)
         self.comboBox.setHidden(True)
+        self.signalForNavigationBar()
+
+    def signalForNavigationBar(self):
+        # self.pushButtonCTKM.clicked.connect()
+        self.pushButtonMHBC.clicked.connect(lambda: open_best_seller_statistic_view(self.mainStackedWidget, self.sharedData, self.db, self))
+        self.pushButtonCTKM.clicked.connect(lambda: open_evoucher_statistic_view(self.mainStackedWidget, self.sharedData, self.db, self))
+        self.pushButtonMenu.clicked.connect(lambda: open_home_view(self.mainStackedWidget, self))
+        self.pushButtonPaymentMethod.setStyleSheet("color: #BD1906; background-color: rgba(255, 80, 80, 0.12);")
 
     # Lấy ngày bắt đầu
     def getStartDate(self):

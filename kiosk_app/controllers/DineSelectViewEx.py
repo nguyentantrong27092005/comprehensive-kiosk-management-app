@@ -31,6 +31,7 @@ class DineSelectViewEx(GeneralView.GeneralView):
         currentWidget = self.mainStackedWidget.currentWidget()
         currentWidget.load_items(category_name=None, category_id=None)
         currentWidget.kioskMenuWidget.groupbox_item.setTitle("Tất cả món")
+        currentWidget.load_categories()
 
     def choose_dine_in(self):
         self.sharedData.order.isDineIn = 1
@@ -38,6 +39,7 @@ class DineSelectViewEx(GeneralView.GeneralView):
         currentWidget = self.mainStackedWidget.currentWidget()
         currentWidget.load_items(category_name=None, category_id=None)
         currentWidget.kioskMenuWidget.groupbox_item.setTitle("Tất cả món")
+        currentWidget.load_categories()
 
     def test(self):
         """Code này để test cho dữ liệu giỏ hàng."""

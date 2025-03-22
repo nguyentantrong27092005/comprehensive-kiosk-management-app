@@ -5,10 +5,12 @@ from heapq import nlargest
 import pandas as pd
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QDate
-from PyQt6.QtWidgets import QApplication, QVBoxLayout, QFileDialog, QMessageBox, QStackedWidget
+from PyQt6.QtWidgets import QVBoxLayout, QFileDialog, QMessageBox, QStackedWidget
 from collections import defaultdict
 
 from admin_app.controllers.GeneralViewEx import GeneralViewEx
+from admin_app.controllers.ViewTransitionHandler import open_best_seller_statistic_view, \
+    open_payment_select_statistic_view, open_home_view
 from admin_app.models.SharedDataModel import SharedDataModel
 from admin_app.views import EVoucherView
 from admin_app.views.GeneralView import GeneralView
@@ -20,12 +22,12 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
         super().__init__()
         self.mainStackedWidget = mainStackedWidget
         self.db = db
+        self.sharedData = sharedData
 
         self.evoucherWidget = EVoucherView.EVoucherWidget()
         # layout chính
         self.evoucherLayout = QVBoxLayout(self.frameContent)
         self.evoucherLayout.addWidget(self.evoucherWidget)
-
         self.lineEditSearch.hide()
         self.pushButtonSearch.hide()
         self.comboBox.hide()
@@ -38,6 +40,15 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
         self.start_date = today - timedelta(days=7)
         self.end_date = today
         self.load_data(self.start_date, self.end_date)
+        self.labelEmail.setText(self.sharedData.signed_in_username)
+        self.signalForNavigationBar()
+
+    def signalForNavigationBar(self):
+        # self.pushButtonCTKM.clicked.connect()
+        self.pushButtonMHBC.clicked.connect(lambda: open_best_seller_statistic_view(self.mainStackedWidget, self.sharedData, self.db, self))
+        self.pushButtonPaymentMethod.clicked.connect(lambda: open_payment_select_statistic_view(self.mainStackedWidget, self.sharedData, self.db, self))
+        self.pushButtonMenu.clicked.connect(lambda: open_home_view(self.mainStackedWidget, self))
+        self.pushButtonCTKM.setStyleSheet("color: #BD1906; background-color: rgba(255, 80, 80, 0.12);")
 
     def update_dates(self):
         if len(self.selected_dates) == 2:

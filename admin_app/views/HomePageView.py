@@ -37,7 +37,6 @@ class HomePageView(QtWidgets.QMainWindow):
         # 3. Label email
         self.labelEmail = QtWidgets.QLabel()
         self.labelEmail.setObjectName("labelEmail")
-        self.labelEmail.setText("ktltnhom@gmail.com")
         self.labelEmail.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
 
         self.layoutHeader.addWidget(self.pushButtonMenu)
@@ -67,24 +66,24 @@ class HomePageView(QtWidgets.QMainWindow):
         self.layoutNavig.setVerticalSpacing(30)
 
         # 1.1.button
+        self.pushButtonBaoCao = QtWidgets.QPushButton()
         self.pushButtonThucDon = QtWidgets.QPushButton()
         self.pushButtonChuongTrinh = QtWidgets.QPushButton()
-        self.pushButtonBaoCao = QtWidgets.QPushButton()
         self.pushButtonThanhToan = QtWidgets.QPushButton()
-        self.pushButtonAI = QtWidgets.QPushButton()
+        # self.pushButtonAI = QtWidgets.QPushButton()
 
+        self.pushButtonBaoCao.setIcon(QtGui.QIcon('admin_app/resources/images/icon_report.png'))
         self.pushButtonThucDon.setIcon(QtGui.QIcon('admin_app/resources/images/icon_fastfood.png'))
         self.pushButtonChuongTrinh.setIcon(QtGui.QIcon('admin_app/resources/images/icon_promosale.png'))
-        self.pushButtonBaoCao.setIcon(QtGui.QIcon('admin_app/resources/images/icon_report.png'))
         self.pushButtonThanhToan.setIcon(QtGui.QIcon('admin_app/resources/images/icon_payment.png'))
+        self.pushButtonBaoCao.setIconSize(QtCore.QSize(32, 32))
         self.pushButtonThucDon.setIconSize(QtCore.QSize(32, 32))
         self.pushButtonChuongTrinh.setIconSize(QtCore.QSize(32, 32))
-        self.pushButtonBaoCao.setIconSize(QtCore.QSize(32, 32))
         self.pushButtonThanhToan.setIconSize(QtCore.QSize(32, 32))
 
+        self.pushButtonBaoCao.setMinimumSize(50, 50)
         self.pushButtonThucDon.setMinimumSize(50, 50)
         self.pushButtonChuongTrinh.setMinimumSize(50, 50)
-        self.pushButtonBaoCao.setMinimumSize(50, 50)
         self.pushButtonThanhToan.setMinimumSize(50, 50)
 
         self.layoutNavig.addWidget(self.pushButtonBaoCao, 0, 0)
@@ -92,17 +91,17 @@ class HomePageView(QtWidgets.QMainWindow):
         self.layoutNavig.addWidget(self.pushButtonChuongTrinh, 2, 0)
         self.layoutNavig.addWidget(self.pushButtonThanhToan, 3, 0)
         # 1.2.label
+        self.labelBaoCao = QtWidgets.QLabel("<b>Báo cáo</b>")
         self.labelThucDon = QtWidgets.QLabel("<b>Thực đơn</b>")
         self.labelChuongTrinh = QtWidgets.QLabel("<b>Chương Trình</b>")
-        self.labelBaoCao = QtWidgets.QLabel("<b>Báo cáo</b>")
         self.labelThanhToan = QtWidgets.QLabel("<b>Thanh Toán</b>")
-        self.labelAI = QtWidgets.QLabel("<b>Trợ lý AI</b>")
+        # self.labelAI = QtWidgets.QLabel("<b>Trợ lý AI</b>")
 
-        self.layoutNavig.addWidget(self.labelThucDon, 0, 1)
-        self.layoutNavig.addWidget(self.labelChuongTrinh, 1, 1)
-        self.layoutNavig.addWidget(self.labelBaoCao, 2, 1)
+        self.layoutNavig.addWidget(self.labelBaoCao, 0, 1)
+        self.layoutNavig.addWidget(self.labelThucDon, 1, 1)
+        self.layoutNavig.addWidget(self.labelChuongTrinh, 2, 1)
         self.layoutNavig.addWidget(self.labelThanhToan, 3, 1)
-        self.layoutNavig.addWidget(self.labelAI, 4, 1)
+        # self.layoutNavig.addWidget(self.labelAI, 4, 1)
         spacer = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum,
                                        QtWidgets.QSizePolicy.Policy.Expanding)
         self.layoutNavig.addItem(spacer, 5, 0)
@@ -289,7 +288,7 @@ class HomePageView(QtWidgets.QMainWindow):
         self.pushButtonChuongTrinh.setStyleSheet('border-radius: 10px; border: 1px solid #D9D9D9')
         self.pushButtonBaoCao.setStyleSheet('border-radius: 10px; border: 1px solid #D9D9D9')
         self.pushButtonThanhToan.setStyleSheet('border-radius: 10px; border: 1px solid #D9D9D9')
-        self.pushButtonAI.setStyleSheet('border-radius: 10px; border: 1px solid #D9D9D9')
+        # self.pushButtonAI.setStyleSheet('border-radius: 10px; border: 1px solid #D9D9D9')
 
     def createSizePolicy(self, horizontal, vertical, hstretch=0, vstretch=0):
         sizePolicy = QtWidgets.QSizePolicy(horizontal, vertical)

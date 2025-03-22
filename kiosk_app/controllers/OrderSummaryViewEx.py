@@ -64,7 +64,7 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
                     self.removeFreeItem()
                 elif self.sharedData.order.evoucherGiamGiaId is not None and self.sharedData.order.isAppliedVoucher:
                     self.reset_voucher_order()
-                if self.sharedData.order.totalPrice > freeItems[0]['MinimumPrice']:
+                if self.sharedData.order.totalPrice > evout[0]['MinimumPrice']:
                     for item in evout:
                         freeItems.append(item)
                     self.addFreeItem(freeItems)
@@ -93,8 +93,7 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
             orderitem = OrderItem(fooditem, item['Amount'],"", evoucherTangMonId=item['EvoucherTangMonID'], is_free=True)# chuyển note = None
             self.sharedData.order.add_new_order_items([orderitem])
             # self.sharedData.order.evoucherDiscount += (item['Price'] - item['DiscountedPrice'])*item['Amount']
-            self.sharedData.order.evoucherDiscount += fooditem.discount*item['Amount']
-        self.updateOrder()
+        self.updateOrder(is_free=True)
 
     def checkVoucherGiamGiaIsUsed(self, voucher):
         """Kiểm tra voucher giảm giá đã được sử dụng chưa?"""
@@ -259,6 +258,10 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
             self.removeFreeItem()
             self.updatePrice()
             self.sharedData.order.isAppliedVoucher = False
+        print(self.sharedData.order.evoucherGiamGiaId)
+        print(self.sharedData.order.totalAmount)
+        print(self.sharedData.order.totalPrice)
+        print(self.sharedData.order.evoucherDiscount)
 
     def processBack(self):
         self.mainStackedWidget.change_screen_with_index(1, self)

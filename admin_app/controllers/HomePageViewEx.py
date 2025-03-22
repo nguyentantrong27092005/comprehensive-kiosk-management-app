@@ -10,6 +10,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 
+from admin_app.controllers.BestSellerViewEx import BestSellerViewEx
+from admin_app.controllers.EVoucherViewEx import EVoucherWidgetViewEx
 from admin_app.controllers.PaymentSelectStatisticViewEx import PaymentSelectViewStatisticsEx
 from admin_app.models.SharedDataModel import SharedDataModel
 from admin_app.views.HomePageView import HomePageView
@@ -23,6 +25,7 @@ class HomePageViewEx(HomePageView):
         self.sharedData = sharedData
         self.colors = ['#991203','#BD1906', '#CA4738', '#EBBAB4','#F8E8E6']
         self.updateUI()
+
     def updateUI(self):
         self.currentDate = QDate.currentDate()
         self.selectedDateLineEdit.setText(f"Hôm nay {self.currentDate.toString('dd/MM')}")
@@ -70,32 +73,46 @@ class HomePageViewEx(HomePageView):
         self.canvas = FigureCanvas(plt.figure(figsize=(2, 2.5)))
         self.layoutPercentReiview.addWidget(self.canvas, 1, 0, 1, 2)
         self.pieChartReviews()
-        ###
         self.signalandslot()
+        self.labelEmail.setText(self.sharedData.signed_in_username)
+        ###
+
     def signalandslot(self):
+        print("Already setup signal")
         self.labelDetailRevenue.mousePressEvent = lambda event: self.detailRevenue()
         self.labelDetailPromotion.mousePressEvent = lambda event: self.detailPromotion()
         self.labelDetailPayment.mousePressEvent = lambda event: self.detailPayment()
         self.labelDetailTop5.mousePressEvent = lambda event: self.detailTop5()
         self.labelDetailReview.mousePressEvent = lambda event: self.detailReview()
-        self.pushButtonAI.clicked.connect(self.openWindowAI)
+        # self.pushButtonAI.clicked.connect(self.openWindowAI)
         self.pushButtonBaoCao.clicked.connect(self.openBaoCaoDetails)
+
     def detailRevenue(self):
         pass
+
     def detailPromotion(self):
-        pass
+        evoucherView = EVoucherWidgetViewEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.addWidget(evoucherView)
+        self.mainStackedWidget.setCurrentWidget(evoucherView)
+
     def detailPayment(self):
         paymentSelectStatisticView = PaymentSelectViewStatisticsEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.addWidget(paymentSelectStatisticView)
         self.mainStackedWidget.setCurrentWidget(paymentSelectStatisticView)
+
     def detailTop5(self):
-        paymentSelectStatisticView = Banch(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.setCurrentWidget(paymentSelectStatisticView)
+        bestSellerView = BestSellerViewEx(self.mainStackedWidget, self.sharedData, self.db)
+        self.mainStackedWidget.addWidget(bestSellerView)
+        self.mainStackedWidget.setCurrentWidget(bestSellerView)
+
     def detailReview(self):
         pass
-    def openWindowAI(self):
-        pass
+
+    # def openWindowAI(self):
+    #     pass
+
     def openBaoCaoDetails(self):
-        self.
+        self.detailPromotion()
 
     def percentReivew(self):
         sql = """

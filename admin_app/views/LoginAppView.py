@@ -2,6 +2,7 @@ import os
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QLineEdit
 
 
 class LoginAppWidget(QtWidgets.QWidget):
@@ -68,6 +69,7 @@ class LoginAppWidget(QtWidgets.QWidget):
         # Mật khẩu input
         self.LabelPassword = QtWidgets.QLabel("Mật khẩu:", self.whiteFrame)
         self.InputPassword = QtWidgets.QLineEdit(self.whiteFrame)
+        self.InputPassword.setEchoMode(QLineEdit.EchoMode.Password)
         self.InputPassword.setFixedHeight(40)
         self.InputPassword.setPlaceholderText("Nhập mật khẩu")
         self.InputPassword.setStyleSheet("border: 2px solid gray; border-radius: 5px;")

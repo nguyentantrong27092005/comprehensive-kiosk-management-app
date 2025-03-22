@@ -6,6 +6,7 @@ class SharedDataModel(QObject):
     def __init__(self):
         super().__init__()
         self.selected_item = None
+        self.signed_in_username = ""
 
     def set_selected_item(self, item):
         """Sử dụng hàm này để update id của object vừa được bấm vào. Ví dụ: FoodItemID của món được chọn trên menu"""

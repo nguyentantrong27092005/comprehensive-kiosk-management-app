@@ -3,12 +3,15 @@ import sys
 import pymysql
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QMessageBox, QApplication, QStackedWidget
+from django.utils.html import escape
+
+from admin_app.views import LoginAppView
 from admin_app.views.LoginAppView import LoginAppWidget
 from common.sql_func import Database
-from kiosk_app.models.SharedDataModel import SharedDataModel
+from admin_app.models.SharedDataModel import SharedDataModel
 
 class LoginAppViewEx(LoginAppWidget):
-    def __init__(self, mainStackedWidget: QtWidgets.QStackedWidget, sharedData, db: Database):
+    def __init__(self, mainStackedWidget: QtWidgets.QStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.sharedData = sharedData
         self.db = db
@@ -39,6 +42,8 @@ class LoginAppViewEx(LoginAppWidget):
 
             if hashed_password == stored_hash:
                 QMessageBox.information(self, "Thông báo", "Đăng nhập thành công")
+                self.sharedData.signed_in_username = email
+                self.mainStackedWidget.setCurrentIndex(1)
             else:
                 self.errorLabel.setText("Bạn đã nhập sai mật khẩu.")
                 self.errorLabel.setVisible(True)

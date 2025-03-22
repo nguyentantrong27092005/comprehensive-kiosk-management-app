@@ -1,6 +1,7 @@
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtGui import QTextCharFormat, QBrush, QColor
 from PyQt6.QtCore import QDate
+from PyQt6.QtWidgets import QStackedWidget
 
 from admin_app.views.GeneralView import GeneralView
 
@@ -232,4 +233,11 @@ class GeneralViewEx(GeneralView):
         self.calendarFrame.move(pos_lineEdit.x(), pos_lineEdit.y() + 50)
         self.update_highlighted_dates()
         self.calendarFrame.show()
+
+    @staticmethod
+    def change_to_new_widget(mainStackedWidget: QStackedWidget, targetWidget, currentWidget=None):
+        mainStackedWidget.addWidget(targetWidget)
+        mainStackedWidget.setCurrentWidget(currentWidget)
+        if currentWidget:
+            mainStackedWidget.removeWidget(currentWidget)
 

@@ -1,25 +1,30 @@
 import sys
 import datetime
-import pymysql
 import pyqtgraph as pg
-from PyQt6.QtCore import Qt, QTimer, QDate
+from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QFont
 import pandas as pd
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QTableWidget,
-    QSplitter, QSizePolicy, QTableWidgetItem, QHeaderView, QScrollArea, QMessageBox,     QComboBox, QFileDialog
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTableWidget,
+    QSizePolicy, QTableWidgetItem, QHeaderView, QScrollArea, QMessageBox, QFileDialog,
+    QStackedWidget
 )
-from admin_app.views.GeneralView import GeneralView
+
+from admin_app.controllers.ViewTransitionHandler import open_payment_select_statistic_view, \
+    open_evoucher_statistic_view, open_home_view
+from admin_app.models.SharedDataModel import SharedDataModel
 from admin_app.controllers.GeneralViewEx import GeneralViewEx
 from datetime import datetime, timedelta
 
-from common.sql_func import DatabaseManager
+from common.sql_func import Database
 
 
-class MathangbanchayEx(GeneralViewEx):
-    def __init__(self, db_manager):
+class BestSellerViewEx(GeneralViewEx):
+    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
-        self.db_manager = db_manager
+        self.db = db
+        self.sharedData = sharedData
+        self.mainStackedWidget = mainStackedWidget
         if not hasattr(self, "frameContent") or self.frameContent is None:
             raise AttributeError("self.frameContent chưa được tạo trong setupUi()")
         self.selected_dates.append(QDate.currentDate().addDays(-30))
@@ -27,7 +32,7 @@ class MathangbanchayEx(GeneralViewEx):
 
         # Thêm combo box nếu frameContent hợp lệ
         self.comboBox.addItem("Tất cả nhóm món")
-        categories = self.db_manager.fetch_categories()
+        categories = self.db.fetch_categories()
         print("Categories to add to combo box:", categories)  # Log kiểm tra
 
         # Thêm danh sách categories vào combo box
@@ -94,7 +99,16 @@ class MathangbanchayEx(GeneralViewEx):
         main_layout.addWidget(bottom_widget, 1)
 
         self.update_plots()
+        self.labelEmail.setText(self.sharedData.signed_in_username)
         self.select_button.clicked.connect(self.on_select_button_clicked)
+        self.signalForNavigationBar()
+
+    def signalForNavigationBar(self):
+        # self.pushButtonCTKM.clicked.connect()
+        self.pushButtonPaymentMethod.clicked.connect(lambda: open_payment_select_statistic_view(self.mainStackedWidget, self.sharedData, self.db, self))
+        self.pushButtonCTKM.clicked.connect(lambda: open_evoucher_statistic_view(self.mainStackedWidget, self.sharedData, self.db, self))
+        self.pushButtonMenu.clicked.connect(lambda: open_home_view(self.mainStackedWidget, self))
+        self.pushButtonMHBC.setStyleSheet("color: #BD1906; background-color: rgba(255, 80, 80, 0.12);")
 
     def on_category_changed(self, index):
         selected_category = self.comboBox.currentText()
@@ -108,7 +122,7 @@ class MathangbanchayEx(GeneralViewEx):
 
     def load_data(self, start_date=None, end_date=None, keyword=None, category=None):
         # Lấy dữ liệu từ cơ sở dữ liệu dựa trên nhóm món được chọn
-        data = self.db_manager.fetch_data(start_date, end_date, keyword, category)
+        data = self.db.fetch_best_seller_data(start_date, end_date, keyword, category)
         print(data)
         if not data:
             QMessageBox.warning(None, "No Data", "Không có dữ liệu.")
@@ -135,7 +149,7 @@ class MathangbanchayEx(GeneralViewEx):
     def update_plots(self, keyword=None, category=None):
         self.lineEditSearch.clear()
 
-        data = self.db_manager.fetch_top2_products(keyword=keyword, category=category)
+        data = self.db.fetch_top2_products(keyword=keyword, category=category)
 
         if not data:
             QMessageBox.warning(None, "No Data", "Không có dữ liệu để vẽ biểu đồ.")
@@ -155,7 +169,7 @@ class MathangbanchayEx(GeneralViewEx):
         end_date = self.selected_dates[-1].toString("yyyy-MM-dd")
 
         # Lấy dữ liệu biểu đồ dựa trên khoảng thời gian
-        data = self.db_manager.fetch_top2_products(start_date, end_date, keyword=keyword, category=selected_category)
+        data = self.db.fetch_top2_products(start_date, end_date, keyword=keyword, category=selected_category)
         if not data:
             QMessageBox.warning(None, "No Data", "Không có dữ liệu trong khoảng thời gian này.")
             return
@@ -346,11 +360,10 @@ class MathangbanchayEx(GeneralViewEx):
             )
 
 if __name__ == "__main__":
-    # Khởi tạo kết nối cơ sở dữ liệu
-    db = DatabaseManager(host="34.80.75.195", user="dev", password="KTLTnhom4@", database="kioskapp")
-
-    # Khởi chạy ứng dụng PyQt
     app = QApplication(sys.argv)
-    window = MathangbanchayEx(db)
+    mainStackedWidget = QStackedWidget()
+    sharedData = SharedDataModel()
+    db = Database()
+    window = BestSellerViewEx(mainStackedWidget, sharedData, db)
     window.show()
     sys.exit(app.exec())

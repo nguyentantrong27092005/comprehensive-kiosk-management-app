@@ -1,6 +1,6 @@
 from typing import List, Dict
 from PyQt6 import QtCore, QtGui, QtWidgets
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 
 class GeneralView(QtWidgets.QMainWindow):
     def __init__(self):
@@ -28,9 +28,9 @@ class GeneralView(QtWidgets.QMainWindow):
 
         # 1. button menu
         self.pushButtonMenu = QtWidgets.QPushButton()
-        self.pushButtonMenu.setIcon(QtGui.QIcon('admin_app/resources/images/ic_menu.png'))
+        self.pushButtonMenu.setIcon(QtGui.QIcon('admin_app/resources/images/ic_home.png'))
         self.pushButtonMenu.setIconSize(QtCore.QSize(32, 32))
-        self.pushButtonMenu.setText("Báo cáo")
+        self.pushButtonMenu.setText("Trang chủ")
         self.pushButtonMenu.setFlat(True)
         # 2. Label app quản lý
         self.labelApp = QtWidgets.QLabel()
@@ -39,7 +39,7 @@ class GeneralView(QtWidgets.QMainWindow):
         # 3. Label email
         self.labelEmail = QtWidgets.QLabel()
         self.labelEmail.setObjectName("labelEmail")
-        self.labelEmail.setText("ktltnhom@gmail.com")
+        self.labelEmail.setText("")
         self.labelEmail.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight| QtCore.Qt.AlignmentFlag.AlignVCenter)
 
         self.layoutHeader.addWidget(self.pushButtonMenu)

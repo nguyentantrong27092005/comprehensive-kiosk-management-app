@@ -1,4 +1,3 @@
-from decimal import Decimal
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt
 import sys

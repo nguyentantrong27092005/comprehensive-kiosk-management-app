@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QTableWidget,QSplitter,
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFrame, QTableWidget,
     QTableWidgetItem, QHeaderView, QScrollArea
 )
 import pyqtgraph as pg

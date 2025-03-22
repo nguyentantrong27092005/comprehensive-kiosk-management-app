@@ -1,77 +1,54 @@
 import sys
 import datetime
 from collections import Counter
-import pymysql
+
+import pandas as pd
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView
+from PyQt6.QtWidgets import QTableWidgetItem, QHeaderView, QStackedWidget, QMessageBox, QFileDialog
+
 from admin_app.controllers.GeneralViewEx import GeneralViewEx
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
-from common.sql_func import db
 
-class Database_LoginApp:
-    def __init__(self, host="34.80.75.195", user="dev", password="KTLTnhom4@", database="kioskapp", port=3306):
-        try:
-            self.connection = pymysql.connect(
-                host=host,
-                user=user,
-                password=password,
-                database=database,
-                port=port,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            self.cursor = self.connection.cursor()
-            print("Kết nối thành công!")
-        except pymysql.MySQLError as e:
-            self.connection = None
-            print(f"Lỗi kết nối MySQL: {e.args}")
-
-    def fetch_all_orders(self, start_date=None, end_date=None):
-        if self.connection is None:
-            print("không thể thực hiện truy vấn vì kết nối database thất bại.")
-            return None
-        try:
-            query = """
-            SELECT Payment, TotalPrice, CreateAt
-            FROM `order`
-            """
-            params = ()
-
-            if start_date and end_date:
-                if len(start_date) == 10:
-                    start_date += " 00:00:00"
-                if len(end_date) == 10:
-                    end_date += " 23:59:59"
-
-                query += " WHERE CreateAt BETWEEN %s AND %s"
-                params = (start_date, end_date)
-
-            query += " ORDER BY CreateAt DESC;"
-            self.cursor.execute(query, params)
-            all_orders = self.cursor.fetchall()
-            return all_orders
-        except pymysql.MySQLError as e:
-            print(f"Lỗi truy vấn MySQL: {e.args}")
-            return None
-
-db = Database_LoginApp()
-
+from admin_app.controllers.ViewTransitionHandler import open_evoucher_statistic_view, open_best_seller_statistic_view, \
+    open_home_view
+from admin_app.models.EnumClasses import PaymentMethod
+from admin_app.models.SharedDataModel import SharedDataModel
+from common.sql_func import Database
 
 
 class PaymentSelectViewStatisticsEx(GeneralViewEx):
 
-    def __init__(self, start_date, end_date):
+    def __init__(self, mainStackedWidget: QStackedWidget, sharedData: SharedDataModel, db: Database):
         super().__init__()
         self.setWindowTitle("Báo cáo phương thức thanh toán")
         self.main_layout = QtWidgets.QVBoxLayout(self.frameContent)
+        self.db = db
+        self.sharedData = sharedData
+        self.mainStackedWidget = mainStackedWidget
         self.init_ui()
         # Gọi hai hàm tạo bảng và đường luôn --> hiển thị dữ liệu thống kê 1 tháng gần nhất
-        self.create_piechart_and_table(start_date, end_date)
-        self.create_payment_chart(start_date, end_date)
+        self.start_date = self.getStartDate()
+        self.end_date= self.getEndDate()
+        self.create_update_charts(self.start_date, self.end_date)
+        self.labelEmail.setText(self.sharedData.signed_in_username)
         self.pushButtonPaymentMethod.setStyleSheet(
             "background-color: white; color: red; font-size: 14px; font-weight: bold;")
+        self.select_button.clicked.connect(self.showDateSelected)
+        self.pushButtonExport.clicked.connect(self.xuatfile)
+        self.lineEditSearch.setHidden(True)
+        self.pushButtonSearch.setHidden(True)
+        self.comboBox.setHidden(True)
+        self.signalForNavigationBar()
+
+    def signalForNavigationBar(self):
+        # self.pushButtonCTKM.clicked.connect()
+        self.pushButtonMHBC.clicked.connect(lambda: open_best_seller_statistic_view(self.mainStackedWidget, self.sharedData, self.db, self))
+        self.pushButtonCTKM.clicked.connect(lambda: open_evoucher_statistic_view(self.mainStackedWidget, self.sharedData, self.db, self))
+        self.pushButtonMenu.clicked.connect(lambda: open_home_view(self.mainStackedWidget, self))
+        self.pushButtonPaymentMethod.setStyleSheet("color: #BD1906; background-color: rgba(255, 80, 80, 0.12);")
 
     # Lấy ngày bắt đầu
     def getStartDate(self):
@@ -95,8 +72,7 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
             self.lineEditDate.setText(dates)
 
         # Cập nhật bảng và biểu đồ
-        self.create_piechart_and_table(start_date, end_date)
-        self.create_payment_chart(start_date, end_date)
+        self.create_update_charts(start_date, end_date)
 
     def init_ui(self):
 
@@ -159,12 +135,14 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
         self.main_layout.addWidget(bottom_frame, 3)
         self.setLayout(self.main_layout)
 
+    def create_update_charts(self, start_date, end_date):
+        self.orders = self.db.fetch_all_orders(start_date, end_date)
+        self.create_payment_chart(start_date, end_date)
+        self.create_piechart_and_table()
+
     # Hàm vẽ biểu đồ đường
     def create_payment_chart(self, start_date, end_date):
-
-        orders = db.fetch_all_orders(start_date, end_date)
-
-        for order in orders:
+        for order in self.orders:
             if isinstance(order['CreateAt'], str):
                 order['CreateAt'] = datetime.datetime.strptime(order['CreateAt'], '%Y-%m-%d')
 
@@ -174,7 +152,7 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
 
         date_counts = {first_date + datetime.timedelta(days=i): {'cash': 0, 'bank': 0} for i in range(num_days)}
 
-        for order in orders:
+        for order in self.orders:
             date = order['CreateAt'].date()
             if order['Payment'] == 'cash':
                 date_counts[date]['cash'] += 1
@@ -208,11 +186,9 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
         self.line_chart_display.draw()
 
     # Hàm vẽ biểu đồ tròn và bảng
-    def create_piechart_and_table(self, start_date, end_date):
-
-        orders = db.fetch_all_orders(start_date, end_date)
-        payment_counts = Counter(order['Payment'] for order in orders)
-        payment_totals = {method: sum(order['TotalPrice'] for order in orders if order['Payment'] == method) for method in payment_counts}
+    def create_piechart_and_table(self):
+        payment_counts = Counter(order['Payment'] for order in self.orders)
+        payment_totals = {method: sum(order['TotalPrice'] for order in self.orders if order['Payment'] == method) for method in payment_counts}
 
         self.table.setRowCount(len(payment_counts))
         for row, (method, count) in enumerate(payment_counts.items()):
@@ -228,7 +204,7 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
         self.pie_chart_ax.clear()
 
         if payment_counts:
-            labels = ["Chuyển khoản" if key == "bank" else "Tiền mặt" for key in payment_counts.keys()]
+            labels = ["Chuyển khoản" if key == PaymentMethod.bank else "Tiền mặt" for key in payment_counts.keys()]
             values = list(payment_counts.values())
 
             self.pie_chart_ax.pie(values, autopct='%1.1f%%', startangle=140, colors=['#2980b9', '#f39c12'],
@@ -243,12 +219,54 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
         # Cập nhật lại biểu đồ mới
         self.pie_chart_display.draw()
 
+    def xuatfile(self):
+        # Lấy số hàng và cột từ bảng
+        row_count = self.table.rowCount()
+        col_count = self.table.columnCount()
+
+        if row_count == 0 or col_count == 0:
+            QMessageBox.warning(self, "Lỗi", "Không có dữ liệu để xuất")
+            return
+
+        # Chuẩn bị dữ liệu từ bảng
+        headers = [self.table.horizontalHeaderItem(i).text() for i in range(col_count)]
+        data = []
+        for row in range(row_count):
+            row_data = []
+            for col in range(col_count):
+                item = self.table.item(row, col)
+                row_data.append(item.text() if item else "")
+            data.append(row_data)
+
+        # Hiển thị hộp thoại chọn file
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Lưu file Excel", "", "Excel Files (*.xlsx)"
+        )
+
+        if not file_path:  # Người dùng hủy
+            return
+
+        try:
+            # Tạo DataFrame và xuất file
+            df = pd.DataFrame(data, columns=headers)
+            df.to_excel(file_path, index=False, engine="openpyxl")
+            QMessageBox.information(
+                self, "Thành công", f"Đã xuất file Excel thành công tại:\n{file_path}"
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self, "Lỗi", f"Lỗi khi xuất file Excel:\n{str(e)}"
+            )
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     today = datetime.datetime.today().date()
     start_date = (today - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
-    window = PaymentSelectViewStatisticsEx(start_date, end_date)
+    db = Database()
+    sharedData = SharedDataModel()
+    mainStackedWidget = QStackedWidget()
+    window = PaymentSelectViewStatisticsEx(mainStackedWidget, sharedData, db)
     window.show()
     sys.exit(app.exec())

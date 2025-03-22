@@ -1,9 +1,8 @@
-
 import matplotlib.ticker as mticker
-from PyQt6.QtCore import Qt, QDate, QSize
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QTableWidget,
-    QHeaderView, QTableWidgetItem, QDateEdit, QPushButton, QLabel, QSizePolicy
+    QHeaderView, QTableWidgetItem
 )
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas

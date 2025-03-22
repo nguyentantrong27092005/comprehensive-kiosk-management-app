@@ -33,8 +33,8 @@ class KioskMenuViewEx(GeneralView.GeneralView):
         self.menuLayout.setSpacing(0)
 
         self.kioskMenuWidget.pushButton_shoppingcart.clicked.connect(self.open_shoppingcart_view)
-        self.load_categories()
-        self.load_items(category_name="Tất cả món", category_id=None)
+        # self.load_categories()
+        # self.load_items(category_name="Tất cả món", category_id=None)
 
     def load_categories(self):
         category_query = "SELECT ID, Name, ImageURL FROM Category"

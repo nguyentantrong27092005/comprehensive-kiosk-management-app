@@ -193,10 +193,6 @@ class Database:
             self.conn.rollback()
             print(f"❌ Transaction failed: {err}")
 
-        finally:
-            # Close the cursor and connection
-            cursor.close()
-            self.conn.close()
 
     def fetch_user(self, email):
         """Lấy thông tin người dùng từ database theo email"""
@@ -251,7 +247,8 @@ class Database:
             INNER JOIN fooditem_history fh ON fi.ID = fh.FoodItemID
             LEFT JOIN promotionfooditem pfi ON fi.ID = pfi.FoodItemID
             LEFT JOIN promotion p ON p.ID = pfi.PromotionID
-            WHERE t.ToppingGroupID = %s;"""
+            WHERE t.ToppingGroupID = %s;
+            AND fh.IsEffective = True"""
         return self.fetch_data(query, ToppingGroupID)
 
     def fetch_all_toppings(self, FoodItemID):

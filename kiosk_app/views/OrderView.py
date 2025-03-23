@@ -156,7 +156,7 @@ class OrderItemBox(QtWidgets.QFrame):
         self.verticalLayout_img = QtWidgets.QVBoxLayout(self.frameOrderImage)
         self.verticalLayout_img.setContentsMargins(0, 0, 0, 0)
         self.label_image = QtWidgets.QLabel(parent=self.frameOrderImage)
-        self.label_image.setPixmap(QtGui.QPixmap(f"kiosk_app/{self.orderItem.foodItem.image_url}"))
+        self.label_image.setPixmap(QtGui.QPixmap(f"{self.orderItem.foodItem.image_url}"))
         self.label_image.setScaledContents(True)
         self.verticalLayout_img.addWidget(self.label_image)
 

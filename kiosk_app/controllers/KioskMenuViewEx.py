@@ -47,7 +47,7 @@ class KioskMenuViewEx(GeneralView.GeneralView):
         return categories
 
     def load_items(self, category_name, category_id=None):
-        if category_id and category_name != "Tất cả món":
+        if category_id or category_name != "Tất cả món":
             self.kioskMenuWidget.groupbox_item.setTitle(category_name)
             self.kioskMenuWidget.groupbox_item.delete_product()
 
@@ -105,7 +105,8 @@ class KioskMenuViewEx(GeneralView.GeneralView):
             """
             items = self.db.fetch_data(query)
             #print(f"Dữ liệu trả về: {items}")
-
+        print(query)
+        print(items)
         row = 0
         col = 0
         for item in items:

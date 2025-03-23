@@ -29,7 +29,7 @@ class DineSelectViewEx(GeneralView.GeneralView):
         self.sharedData.order.isDineIn = 0
         self.mainStackedWidget.change_screen_with_index(1)
         currentWidget = self.mainStackedWidget.currentWidget()
-        currentWidget.load_items(category_name=None, category_id=None)
+        currentWidget.load_items(category_name="Tất cả món", category_id=None)
         currentWidget.kioskMenuWidget.groupbox_item.setTitle("Tất cả món")
         currentWidget.load_categories()
 
@@ -37,7 +37,7 @@ class DineSelectViewEx(GeneralView.GeneralView):
         self.sharedData.order.isDineIn = 1
         self.mainStackedWidget.change_screen_with_index(1)
         currentWidget = self.mainStackedWidget.currentWidget()
-        currentWidget.load_items(category_name=None, category_id=None)
+        currentWidget.load_items(category_name="Tất cả món", category_id=None)
         currentWidget.kioskMenuWidget.groupbox_item.setTitle("Tất cả món")
         currentWidget.load_categories()
 

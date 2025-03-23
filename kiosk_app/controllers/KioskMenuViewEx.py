@@ -47,7 +47,7 @@ class KioskMenuViewEx(GeneralView.GeneralView):
         return categories
 
     def load_items(self, category_name, category_id=None):
-        if category_id or category_name != "Tất cả món":
+        if category_id and category_name != "Tất cả món":
             self.kioskMenuWidget.groupbox_item.setTitle(category_name)
             self.kioskMenuWidget.groupbox_item.delete_product()
 

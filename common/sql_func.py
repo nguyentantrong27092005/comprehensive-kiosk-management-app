@@ -247,8 +247,8 @@ class Database:
             INNER JOIN fooditem_history fh ON fi.ID = fh.FoodItemID
             LEFT JOIN promotionfooditem pfi ON fi.ID = pfi.FoodItemID
             LEFT JOIN promotion p ON p.ID = pfi.PromotionID
-            WHERE t.ToppingGroupID = %s;
-            AND fh.IsEffective = True"""
+            WHERE t.ToppingGroupID = %s
+            AND fh.IsEffective = True;"""
         return self.fetch_data(query, ToppingGroupID)
 
     def fetch_all_toppings(self, FoodItemID):

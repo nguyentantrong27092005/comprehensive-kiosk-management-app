@@ -28,5 +28,6 @@ class BankCancelDialogEx(BankCancelDialog):
         self.bankQRViewEx.stop_process()
         bankFailedView = BankFailedViewEx(self.mainStackedWidget, self.sharedData, self.db, "Đã huỷ đơn hàng!", "Bấm xác nhận để quay lại từ đầu.")
         self.mainStackedWidget.change_screen(bankFailedView, self)
+        self.sharedData.reset_data()
 
 

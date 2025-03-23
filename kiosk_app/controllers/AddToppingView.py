@@ -151,7 +151,6 @@ class AddTopping(QtWidgets.QWidget):
         db = Database()
         food_item_id = int(input("Nhập food_item_id muốn xem chi tiết: "))  # thay = ID của món ăn cần lấy
         toppings = db.fetch_all_toppings(food_item_id)  # trả về danh sách dicts topping
-        db.close_connection()
 
         # Vì dữ liệu topping trả về là dict --> xây dựng hàm chuyển về tuple để cho dễ trích xuất dữ liệu
         # Hàm chuyển đổi thành dữ liệu tuple

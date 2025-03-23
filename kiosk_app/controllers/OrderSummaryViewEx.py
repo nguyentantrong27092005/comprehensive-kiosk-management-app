@@ -64,18 +64,21 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
                     self.removeFreeItem()
                 elif self.sharedData.order.evoucherGiamGiaId is not None and self.sharedData.order.isAppliedVoucher:
                     self.reset_voucher_order()
+                elif any(item.is_free for item in
+                         self.sharedData.order.orderItems) and self.sharedData.order.isAppliedVoucher:
+                    self.reset_voucher_order()
                 if self.sharedData.order.totalPrice > evout[0]['MinimumPrice']:
                     for item in evout:
                         freeItems.append(item)
                     self.addFreeItem(freeItems)
                     self.sharedData.order.isAppliedVoucher = True
                     return freeItems
-            else:
-                self.reset_voucher_order()
-                return "Bạn không đủ điều kiện để áp dụng mã voucher này."
+                else:
+                    self.reset_voucher_order()
+                    return "Bạn không đủ điều kiện để áp dụng mã voucher này."
 
-        # if isinstance(evoug, str) and isinstance(evout, str):
-        #     return evoug
+        if isinstance(evoug, str) and isinstance(evout, str):
+            return evoug
     def removeFreeItem(self):
         """Hàm dùng để xoá tất cả freeItem có trong giỏ hàng và update lại giỏ hàng"""
         free_items = [item for item in self.sharedData.order.orderItems if item.evoucherTangMonId is not None]
@@ -147,7 +150,7 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         """:returns: List | Cảnh báo hết hạn/ bị sử dụng/ không hợp lệ và evouchertangmon"""
         evou = self.checkisUsedTangMon(voucher)
         if evou:
-            evouchertangmonID = evou[0]['ID']
+            evouchertangmonID = evou[0]['EVoucherTangMonID']
             sql = f"""
             SELECT fi.ID
                   ,fi.Name
@@ -165,7 +168,7 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
             ON fi.ID = evtm.FoodItemID
             INNER JOIN fooditem_history fih
             ON fi.ID = fih.FoodItemID
-            WHERE evtm.EvoucherID = %s
+            WHERE evtm.ID = %s
             AND ev.IsEffective = TRUE 
             AND fih.IsEffective = TRUE"""
             result = self.db.fetch_data(sql, evouchertangmonID)
@@ -177,7 +180,7 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
 
     def addOrderItemBox(self):
         totalitem = len(self.sharedData.order.orderItems)
-        self.orderWidget.scrollAreaWidgetContents.setMinimumSize(320, 120*totalitem)
+        self.orderWidget.scrollAreaWidgetContents.setMinimumSize(320, 130*totalitem)
         for item in self.sharedData.order.orderItems:
             OrderItemBox = OrderItemBoxEx(item)
             OrderItemBox.quantityChanged.connect(self.extendUpdatePrice)

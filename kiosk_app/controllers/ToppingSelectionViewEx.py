@@ -117,9 +117,17 @@ class ToppingSelectionEx(GeneralView):
             toppingList = self.toppingSelectionView.grid_layout.selectedToppings,
             variantList = selectedVariantList )
         print(generatedOrderItem.total_item_price, generatedOrderItem.foodItem.discounted_price, generatedOrderItem.foodItem.price)
-        self.sharedData.order.add_new_order_items([generatedOrderItem])
-        print(f"Thông tin chi tiết về OrderItem: {generatedOrderItem}")
-        print('*'*15)
+        #Kiểm tra món đã tồn tại chưa, nếu rồi thì cộng thêm số lượng
+        existing_items = self.sharedData.order.orderItems
+        found = False
+        for item in existing_items:
+            if item == generatedOrderItem:
+                item.quantity += self.selected_quantity
+                item.total_item_price += generatedOrderItem.total_item_price
+                found = True
+                break
+        if not found:
+            self.sharedData.order.add_new_order_items([generatedOrderItem])
         self.open_order_summary()
 
 if __name__ == "__main__":

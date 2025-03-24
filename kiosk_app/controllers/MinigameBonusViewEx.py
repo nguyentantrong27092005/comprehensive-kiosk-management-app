@@ -1,3 +1,4 @@
+from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 
@@ -19,8 +20,8 @@ class MinigameBonusViewEx(GeneralView.GeneralView):
 
         #Khởi tạo và thay đổi nội dung màn hình bank failed
         self.minigameBonusView = MiniGameBonus()
-        self.frame_ngang.hide()
-        #Thêm vào frame chung
+        self.pushButton_back.setText("Hộp quà may mắn")
+        self.pushButton_back.setIcon(QtGui.QIcon())        #Thêm vào frame chung
         self.minigameBonusVLayout = QVBoxLayout(self.frame_chung)
         self.minigameBonusVLayout.addWidget(self.minigameBonusView)
         self.minigameBonusVLayout.setContentsMargins(0, 0, 0, 0)

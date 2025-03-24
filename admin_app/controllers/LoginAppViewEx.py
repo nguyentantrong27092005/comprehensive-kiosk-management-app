@@ -44,6 +44,8 @@ class LoginAppViewEx(LoginAppWidget):
                 QMessageBox.information(self, "Thông báo", "Đăng nhập thành công")
                 self.sharedData.signed_in_username = email
                 self.mainStackedWidget.setCurrentIndex(1)
+                current_widget = self.mainStackedWidget.currentWidget()
+                current_widget.aiPromptViewEx.start_analysis()
             else:
                 self.errorLabel.setText("Bạn đã nhập sai mật khẩu.")
                 self.errorLabel.setVisible(True)

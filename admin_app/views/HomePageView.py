@@ -233,17 +233,31 @@ class HomePageView(QtWidgets.QMainWindow):
         self.labelDetailReview.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.layoutPercentReiview.addWidget(self.labelPieChartReivew, 0, 0, 1, 1)
         self.layoutPercentReiview.addWidget(self.labelDetailReview, 0, 1, 1, 1)
+
+        # 2.1. AI Recommendation
+        self.frameAIRecommendation = QtWidgets.QFrame()
+        self.frameAIRecommendation.setObjectName('frameAIRecommendation')
+        self.layoutAIRecommendation = QtWidgets.QVBoxLayout(self.frameAIRecommendation)
+        self.labelAIRecommendation = QtWidgets.QLabel("<b>Lời khuyên từ AI<b>")
+        self.labelAIRecommendation.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
+        self.layoutAIRecommendation.addWidget(self.labelAIRecommendation)
+        self.scrollAreaLayout.addWidget(self.frameAIRecommendation)
+
         ###
         self.framePercentTypyPayment.setMinimumSize(310,323)
         self.framePercentReiview.setMinimumSize(310,323)
         self.frameTableTop5.setMinimumSize(310,323)
         self.framePromotion.setMinimumSize(530, 297)
         self.frameRevenue.setMinimumSize(530, 297)
+        self.frameAIRecommendation.setMinimumHeight(700)
+
+
         self.layoutChart.addWidget(self.frameRevenue, 0, 0, 1, 3)
         self.layoutChart.addWidget(self.framePromotion, 0, 3, 1, 3)
         self.layoutChart.addWidget(self.framePercentTypyPayment, 1, 0, 1, 2)
         self.layoutChart.addWidget(self.frameTableTop5, 1, 2, 1, 2)
         self.layoutChart.addWidget(self.framePercentReiview, 1, 4, 1, 2)
+
 
         self.setStyleSheetAll()
 

@@ -10,6 +10,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 
+from admin_app.controllers.AIPromptView import AIPromptViewEx
 from admin_app.controllers.BestSellerViewEx import BestSellerViewEx
 from admin_app.controllers.EVoucherViewEx import EVoucherWidgetViewEx
 from admin_app.controllers.PaymentSelectStatisticViewEx import PaymentSelectViewStatisticsEx
@@ -75,7 +76,9 @@ class HomePageViewEx(HomePageView):
         self.pieChartReviews()
         self.signalandslot()
         self.labelEmail.setText(self.sharedData.signed_in_username)
-        ###
+        # 6. AI Recommendation
+        self.aiPromptViewEx = AIPromptViewEx()
+        self.layoutAIRecommendation.addWidget(self.aiPromptViewEx)
 
     def signalandslot(self):
         print("Already setup signal")

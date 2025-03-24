@@ -425,6 +425,16 @@ class Database:
         result = self.cursor.fetchall()
         return result
 
+    def execute_sql_file(self, file_path):
+        """ Reads and executes SQL statements from a file. """
+        with open(file_path, "r", encoding="utf-8") as file:
+            sql_script = file.read()
+
+        if sql_script:  # Ignore empty statements
+            self.cursor.execute(sql_script)
+            results = self.cursor.fetchall()
+            return results
+
 if __name__ == "__main__":
     db = Database()
     query = """

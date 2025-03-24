@@ -427,6 +427,7 @@ class ToppingGridItem(QtWidgets.QWidget):
         checkbox_layout.addWidget(self.checkbox)
         checkbox_layout.addStretch()
         main_layout.addLayout(checkbox_layout)
+        self.checkbox.clicked.connect(self.mousePressEvent)
 
         self.setLayout(main_layout)
 

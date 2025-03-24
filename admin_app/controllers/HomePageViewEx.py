@@ -122,11 +122,11 @@ class HomePageViewEx(HomePageView):
         (SELECT COUNT(*) 
          FROM kioskapp.order 
          WHERE customer_vote IS NOT NULL 
-         AND CreateAt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+         AND CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)
         ), 2) AS Percent
         FROM kioskapp.order
         WHERE customer_vote IS NOT NULL
-        AND CreateAt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        AND CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)
         GROUP BY customer_vote
         ORDER BY customer_vote DESC;"""
         result = self.db.fetch_data(sql)
@@ -141,7 +141,7 @@ class HomePageViewEx(HomePageView):
                 JOIN kioskapp.orderdetails od ON f.ID = od.FoodItemID
                 JOIN kioskapp.order o ON od.OrderID = o.ID
                 WHERE o.Status = 'Done'  
-                      AND o.CreateAt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                      AND o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)
                 GROUP BY f.Name
                 ORDER BY DoanhThu DESC
                 LIMIT 5;        
@@ -150,28 +150,40 @@ class HomePageViewEx(HomePageView):
         return result
 
     def promotion(self):
-        sql = """
-        select date(o.CreateAt) as Ngay
-        , ev.Name as TenChuongTrinh
-        , sum(o.TotalPrice) as TongDoanhThu
-        from kioskapp.evoucher ev
-        inner join evouchergiamgia evgg
-        on ev.ID = evgg.EVoucherID
-        left join kioskapp.order o 
-        on evgg.ID = o.EVoucherGiamGiaID
-        where o.CreateAt >= date_sub(now(), interval 7 day)
-        group by ev.ID, date(o.CreateAt)
-        union all
-        select date (o.CreateAt) as Ngay
-        , p.Name as TenChuongTrinh
-        , sum(o.TotalPrice) as TongDoanhThu
-        from kioskapp.order o 
-        join kioskapp.orderdetails od on o.ID = od.OrderID
-        join kioskapp.promotion p on p.ID = od.PromotionID
-        
-        where o.CreateAt >= date_sub(now(), interval 7 day)
-        group by p.ID, date(o.CreateAt)
-        order by Ngay, TongDoanhThu desc;"""
+        sql = '''
+        WITH AllPrograms AS (
+                SELECT ev.Name AS TenChuongTrinh, o.CreateAt, o.TotalPrice
+                FROM evoucher ev
+                JOIN evouchergiamgia evgg ON ev.ID = evgg.EVoucherID
+                LEFT JOIN `order` o ON evgg.ID = o.EVoucherGiamGiaID
+                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status = 'done'
+            
+                UNION ALL
+                SELECT ev.Name AS TenChuongTrinh, o.CreateAt, o.TotalPrice
+                FROM `order` o
+                JOIN orderdetails od ON o.ID = od.OrderID
+                JOIN evouchertangmon evtm ON evtm.ID = od.EVoucherTangMonID
+                JOIN evoucher ev ON ev.ID = evtm.EVoucherID
+                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status = 'done'
+            
+                UNION ALL
+                SELECT p.Name AS TenChuongTrinh, o.CreateAt, o.TotalPrice
+                FROM `order` o
+                JOIN orderdetails od ON o.ID = od.OrderID
+                JOIN promotion p ON p.ID = od.PromotionID
+                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status = 'done'
+            ),
+            TopPrograms AS (
+                SELECT TenChuongTrinh
+                FROM AllPrograms
+                GROUP BY TenChuongTrinh
+                ORDER BY SUM(TotalPrice) DESC
+                LIMIT 5
+            )
+            SELECT DATE(CreateAt) AS Ngay, TenChuongTrinh, SUM(TotalPrice) AS TongDoanhThu
+            FROM AllPrograms
+            WHERE TenChuongTrinh IN (SELECT TenChuongTrinh FROM TopPrograms)
+            GROUP BY DATE(CreateAt), TenChuongTrinh;'''
         result = self.db.fetch_data(sql)
         return result
 
@@ -181,7 +193,7 @@ class HomePageViewEx(HomePageView):
             SUM(TotalPrice) AS DoanhThu,
         DATE(CreateAt) AS Ngay
         FROM kioskapp.order 
-        WHERE CreateAt >= DATE_SUB(current_time(), INTERVAL 7 DAY)
+        WHERE CreateAt >= DATE_SUB(current_time(), INTERVAL 6 DAY)
         AND Status = 'done'
         GROUP BY Ngay
         ORDER BY Ngay ASC;"""
@@ -296,7 +308,7 @@ class HomePageViewEx(HomePageView):
             percent.append(float(item['Percent']))
         ax = self.canvas.figure.add_subplot(111)
         ax.clear()
-        wedges, _, autotexts = ax.pie(percent, labels=None, autopct='%1.1f%%', colors=self.colors, textprops={'color': 'white'})
+        wedges, _ = ax.pie(percent, labels=None, colors=self.colors)
         ax.legend(wedges, review_type, loc="lower center",  bbox_to_anchor=(0.5, -0.15), ncol = 5)
         self.canvas.draw()
 
@@ -304,9 +316,9 @@ class HomePageViewEx(HomePageView):
         sql = """
         SELECT Payment, 
            COUNT(*) AS TotalAmount,
-           ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM kioskapp.order WHERE CreateAt >= DATE_SUB(NOW(), INTERVAL 7 DAY)), 2) AS Percent
+           ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM kioskapp.order WHERE CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)), 2) AS Percent
         FROM kioskapp.order
-        WHERE CreateAt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        WHERE Status = 'done' AND CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)
         GROUP BY Payment;"""
         result = self.db.fetch_data(sql)
         return result
@@ -319,7 +331,7 @@ class HomePageViewEx(HomePageView):
             percent.append(float(item['Percent']))
         ax = self.canvas.figure.add_subplot(111)
         ax.clear()
-        wedges, _, autotexts=ax.pie(percent, labels=None, autopct='%1.1f%%', colors = self.colors, textprops={'color': 'white'})
+        wedges, _, autotexts=ax.pie(percent, labels=None, autopct='%1.1f%%', colors = [self.colors[0], self.colors[2]], textprops={'color': 'white'})
         ax.legend(wedges, payment_type,loc="lower center",  bbox_to_anchor=(0.5, -0.15), ncol = 2)
 
     def TongDoanhThu(self):

@@ -35,9 +35,9 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
         self.select_button.clicked.connect(self.update_dates)
         self.pushButtonExport.clicked.connect(self.export_to_excel)
 
-        #tải dữ liệu lúc đầu, 7 ngày mặc định
+        #tải dữ liệu lúc đầu, 30 ngày mặc định
         today = date.today()
-        self.start_date = today - timedelta(days=7)
+        self.start_date = today - timedelta(days=29)
         self.end_date = today
         self.load_data(self.start_date, self.end_date)
         self.labelEmail.setText(self.sharedData.signed_in_username)
@@ -103,7 +103,7 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
                        SUM(o.EVoucherDiscount) AS TongGiamGia
                 FROM evouchergiamgia evgg
                 LEFT JOIN `order` o ON evgg.ID = o.EVoucherGiamGiaID
-                WHERE o.CreateAt BETWEEN %s AND %s
+                WHERE o.CreateAt BETWEEN %s AND %s AND o.Status = 'done'
                 GROUP BY evgg.ID
             ) o ON evgg.ID = o.ID
             GROUP BY evgg.ID
@@ -126,7 +126,7 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
             JOIN evouchertangmon evtm ON evtm.ID = od.EVoucherTangMonID  
             JOIN evoucher ev ON ev.ID = evtm.EVoucherID  
             JOIN `order` o ON o.ID = od.OrderID
-            WHERE o.CreateAt BETWEEN %s AND %s
+            WHERE o.CreateAt BETWEEN %s AND %s AND o.Status = 'done'
             GROUP BY ev.Name
 
             UNION ALL
@@ -144,7 +144,7 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
             FROM `order` o
             JOIN `orderdetails` od ON o.ID = od.OrderID
             JOIN `promotion` p ON p.ID = od.PromotionID
-            WHERE o.CreateAt BETWEEN %s AND %s
+            WHERE o.CreateAt BETWEEN %s AND %s AND o.Status = 'done'
             GROUP BY p.Name
         """
         params_pie = (start_str, end_str)*3
@@ -174,7 +174,7 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
                 FROM evoucher ev
                 JOIN evouchergiamgia evgg ON ev.ID = evgg.EVoucherID
                 LEFT JOIN `order` o ON evgg.ID = o.EVoucherGiamGiaID
-                WHERE o.CreateAt BETWEEN %s AND %s
+                WHERE o.CreateAt BETWEEN %s AND %s AND o.Status = 'done'
             
                 UNION ALL
                 SELECT ev.Name AS TenChuongTrinh, o.CreateAt, o.TotalPrice
@@ -182,14 +182,14 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
                 JOIN orderdetails od ON o.ID = od.OrderID
                 JOIN evouchertangmon evtm ON evtm.ID = od.EVoucherTangMonID
                 JOIN evoucher ev ON ev.ID = evtm.EVoucherID
-                WHERE o.CreateAt BETWEEN %s AND %s
+                WHERE o.CreateAt BETWEEN %s AND %s AND o.Status = 'done'
             
                 UNION ALL
                 SELECT p.Name AS TenChuongTrinh, o.CreateAt, o.TotalPrice
                 FROM `order` o
                 JOIN orderdetails od ON o.ID = od.OrderID
                 JOIN promotion p ON p.ID = od.PromotionID
-                WHERE o.CreateAt BETWEEN %s AND %s
+                WHERE o.CreateAt BETWEEN %s AND %s AND o.Status = 'done'
             ),
             TopPrograms AS (
                 SELECT TenChuongTrinh

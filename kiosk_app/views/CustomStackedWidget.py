@@ -6,15 +6,18 @@ class CustomStackedWidget(QStackedWidget):
         super().__init__(parent)
         self.mainWindow = mainWindow
 
-    def change_screen(self, targetView, currentView=None):
+    def change_screen(self, targetView, currentView=None, timer_hidden=False):
         """Define current View to delete the current view in stacked widget"""
         self.addWidget(targetView)
         self.setCurrentWidget(targetView)
         if currentView:
             self.removeWidget(currentView)
-        self.reset_timer()
+        if timer_hidden:
+            self.hide_timer()
+        else:
+            self.reset_timer()
 
-    def change_screen_with_index(self, index, currentView=None):
+    def change_screen_with_index(self, index, currentView=None, timer_hidden=False):
         """Define current View to delete the current view in stacked widget"""
         self.setCurrentIndex(index)
         if currentView:

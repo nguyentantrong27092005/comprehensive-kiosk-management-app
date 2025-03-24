@@ -32,7 +32,7 @@ class PaymentSelectViewEx(GeneralView.GeneralView): #Kế thừa màn hình chun
         self.sharedData.order.paymentMethod = PaymentMethod.bank
         self.db.submit_order_transaction(self.sharedData.order)
         bankQRView = BankQRViewEx.BankQRViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.change_screen(bankQRView, self)
+        self.mainStackedWidget.change_screen(bankQRView, self, timer_hidden=True)
 
 
     def choose_cash(self):

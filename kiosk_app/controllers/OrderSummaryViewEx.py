@@ -202,7 +202,7 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         """
         self.sharedData.order.totalPrice = 0
         self.sharedData.order.init_calculate_totals()
-        self.orderWidget.lineEdit_total.setText(f"{self.sharedData.order.totalPrice - self.sharedData.order.evoucherDiscount:,}")
+        self.orderWidget.lineEdit_total.setText(f"{self.sharedData.order.totalPrice - self.sharedData.order.evoucherDiscount:,.0f}")
         if is_all:
             self.orderWidget.lineEdit_totaltemp.setText(f"{self.sharedData.order.totalPrice-self.sharedData.order.evoucherDiscount:,}")
 

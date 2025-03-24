@@ -10,28 +10,27 @@ class MiniGameBonus(QtWidgets.QWidget):
         self.setupUi()
 
     def setupUi(self):
-        self.setWindowTitle("Kết Quả")
-        self.resize(478, 592)
 
         # Nền trắng
         self.setStyleSheet("background-color: white;")
 
         layout_vertical = QtWidgets.QVBoxLayout(self)
         layout_vertical.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout_vertical.setContentsMargins(0, 0, 0, 60)
 
         # Hình ảnh minigame phần may mắn
-        self.label_image_luck = QtWidgets.QLabel(self)
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        image_path = "kiosk_app/resources/images/bannermngame.png"
-        pixmap = QtGui.QPixmap(image_path)
-        self.label_image_luck.setPixmap(pixmap)
-        self.label_image_luck.setScaledContents(True)
-        self.label_image_luck.setFixedHeight(150)
-        layout_vertical.addWidget(self.label_image_luck)
+        # self.label_image_luck = QtWidgets.QLabel(self)
+        # base_dir = os.path.dirname(os.path.abspath(__file__))
+        # image_path = "kiosk_app/resources/images/bannermngame.png"
+        # pixmap = QtGui.QPixmap(image_path)
+        # self.label_image_luck.setPixmap(pixmap)
+        # self.label_image_luck.setScaledContents(True)
+        # self.label_image_luck.setFixedHeight(150)
+        # layout_vertical.addWidget(self.label_image_luck)
 
         # Chúc mừng bạn đã nhận được
         self.label_text1 = QtWidgets.QLabel("Chúc mừng bạn đã nhận được")
-        self.label_text1.setStyleSheet("color: purple; font-weight: bold; font-size: 12px;")
+        self.label_text1.setStyleSheet("font-weight: bold; font-size: 15px;")
         self.label_text1.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         layout_vertical.addWidget(self.label_text1)
 
@@ -41,8 +40,8 @@ class MiniGameBonus(QtWidgets.QWidget):
         pixmap = QtGui.QPixmap(image_path)
         self.label_image_voucher.setPixmap(pixmap)
         self.label_image_voucher.setScaledContents(True)
-        self.label_image_voucher.setFixedHeight(150)
-        layout_vertical.addWidget(self.label_image_voucher)
+        self.label_image_voucher.setMaximumSize(150,150)
+        layout_vertical.addWidget(self.label_image_voucher, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         # Hình ảnh tên gọi voucher
         self.label_text2 = QtWidgets.QLabel("1 MÃ VOUCHER 50%")
@@ -55,8 +54,8 @@ class MiniGameBonus(QtWidgets.QWidget):
 
         # Button đi đến giỏ hàng
         self.button_confirm = QtWidgets.QPushButton("Xác nhận")
-        self.button_confirm.setStyleSheet("background-color: red; color: white; font-size: 15px; font-weight: bold; border-radius: 10px;")
-        self.button_confirm.setFixedSize(150, 40)
+        self.button_confirm.setStyleSheet("background-color: #bd1906; color: white; font-size: 15px; font-weight: bold; border-radius: 10px;")
+        self.button_confirm.setFixedSize(285, 40)
         layout_two_btns.addWidget(self.button_confirm, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         layout_vertical.addLayout(layout_two_btns)

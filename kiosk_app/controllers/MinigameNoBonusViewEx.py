@@ -19,13 +19,13 @@ class MinigameNoBonusViewEx(GeneralView.GeneralView):
 
         #Khởi tạo và thay đổi nội dung màn hình bank failed
         self.minigameNoBonusView = MiniGameNoBonus()
-
+        self.frame_ngang.hide()
         #Thêm vào frame chung
         self.minigameNoBonusVLayout = QVBoxLayout(self.frame_chung)
         self.minigameNoBonusVLayout.addWidget(self.minigameNoBonusView)
         self.minigameNoBonusVLayout.setContentsMargins(0, 0, 0, 0)
         self.minigameNoBonusVLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label_image.setPixmap(QPixmap("kiosk_app/resources/images/img_bannerminigame.png").scaled(478, 150))
+        self.label_image.setMaximumHeight(150)
         self.frame_chung.setStyleSheet("background-color: white;")
 
         #Nối nút với hành động

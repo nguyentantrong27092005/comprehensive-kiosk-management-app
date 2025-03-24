@@ -1,7 +1,7 @@
  QScrollBar:vertical {
 	border: none;
     background: rgb(179, 179, 179);
-    width: 8px;
+    width: 6px;
     margin: 15px 0 15px 0;
 	border-radius: 3px;
  }

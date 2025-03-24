@@ -44,16 +44,10 @@ class ToppingSelection(QtWidgets.QWidget):
         self.title_layout.setContentsMargins(5, 5, 5, 5)
 
         # button quay lai
-        self.back_button = QtWidgets.QPushButton("←")
-        self.back_button.setFixedSize(24, 24)
-        self.back_button.setStyleSheet("""
-                    background-color: white;
-                    color: #BD1906;
-                    font-size: 14px;
-                    font-weight: bold;
-                    border: none;
-                    border-radius: 12px;
-                """)
+        self.back_button = QtWidgets.QPushButton()
+        self.back_button.setIcon(QtGui.QIcon('kiosk_app/resources/images/ic_backwhite.png'))
+        self.back_button.setIconSize(QtCore.QSize(24, 24))
+        self.back_button.setFlat(True)
 
         # Tiêu đề "Chi tiết"
         self.title_label = QtWidgets.QLabel("Chi tiết")
@@ -81,11 +75,12 @@ class ToppingSelection(QtWidgets.QWidget):
         self.contentScrollView.setWidget(self.contentWidget)
 
         # food_item_id = int(input("Nhập food_item_id muốn xem chi tiết: "))  # thay = ID của món ăn cần lấy
-        self.add_to_cart = QPushButton(f"Thêm vào giỏ hàng - {self.temp_total}")
+        self.add_to_cart = QPushButton()
+        self.add_to_cart.setText(f"Thêm vào giỏ hàng - {self.final_total:,}")
         toppings = self.db.fetch_all_toppings(self.sharedData.selected_item.id)  # trả về danh sách dicts topping
         # Hiển thị số
         self.number = QtWidgets.QLabel("1")
-        self.number.setStyleSheet("color: red; font-size: 30px; font-weight: bold;")
+        self.number.setStyleSheet("color: #bd1906; font-size: 23px; font-weight: bold;")
         self.number.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         # self.number.setFixedSize(30, 30)
@@ -174,21 +169,21 @@ class ToppingSelection(QtWidgets.QWidget):
 
         # Nút trừ
         self.minus = ClickableLabel()
-        self.minus.setPixmap(QPixmap("kiosk_app/resources/images/ic_minus").scaled(48,48, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+        self.minus.setPixmap(QPixmap("kiosk_app/resources/images/ic_minus").scaled(32,32, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
         self.minus.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
 
         # Nút cộng
         self.plus = ClickableLabel()
         self.plus.setPixmap(
-            QPixmap("kiosk_app/resources/images/ic_plus").scaled(48, 48, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+            QPixmap("kiosk_app/resources/images/ic_plus").scaled(32, 32, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
         self.plus.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         # Thêm widget vào layout với khoảng cách nhỏ
         self.frame_vertical.addWidget(self.minus)
-        self.frame_vertical.addSpacing(7)  # Khoảng cách giữa nút trừ và số
+        self.frame_vertical.addSpacing(20)  # Khoảng cách giữa nút trừ và số
         self.frame_vertical.addWidget(self.number)
-        self.frame_vertical.addSpacing(7)  # Khoảng cách giữa số và nút cộng
+        self.frame_vertical.addSpacing(20)  # Khoảng cách giữa số và nút cộng
         self.frame_vertical.addWidget(self.plus)
 
         # Gán layout vào group box
@@ -199,15 +194,15 @@ class ToppingSelection(QtWidgets.QWidget):
 
         # Nút thêm vào giỏ hàng
         self.add_to_cart.setMinimumHeight(40)
-        self.add_to_cart.setIcon(QtGui.QIcon("kiosk_app/resources/images/icon_add_to_cart.png"))
+        self.add_to_cart.setIcon(QtGui.QIcon("kiosk_app/resources/images/shopping_cart.png"))
         self.add_to_cart.setIconSize(QtCore.QSize(24, 24))
-        self.add_to_cart.setStyleSheet("background-color: #BD1906; color: white; font-weight: bold; border-radius: 15px")
+        self.add_to_cart.setStyleSheet("background-color: #BD1906; color: white; font-weight: bold; border-radius: 15px; font-size: 15px;")
         self.main_layout.addWidget(self.add_to_cart)
 
     def calculata_total_price(self, price_change=0):
         self.temp_total += price_change
         self.final_total = self.temp_total * int(self.number.text())
-        self.add_to_cart.setText(f"Thêm vào giỏ hàng - {self.final_total}")
+        self.add_to_cart.setText(f"Thêm vào giỏ hàng - {self.final_total:,}")
 
 class RadioButtonGroup(QGroupBox):
     def __init__(self, topping_selection_widget: ToppingSelection, title, parent=None):
@@ -295,18 +290,19 @@ class SizeButton(QPushButton):
         self.setStyleSheet("""
                                         QPushButton {
                                             border-radius: 20px;  
-                                            background-color: #f0f0f0;
+                                            background-color: #ffffff;
                                             padding: 3px;
-                                            border: 1px solid #ccc;
+                                            border: 1px solid #8a8a8a;
                                             font-size: 12px;
                                         }
                                         QPushButton:hover {
                                             background-color: #d9d9d9;
                                         }
                                         QPushButton:checked { 
-                                            background-color: #888888;  /* Màu xám khi được chọn */
+                                            background-color: #C00000;
+                                            border: 1px solid #B71C1C;
                                             color: white;
-                                            border: 2px solid #BD1906;
+                                            font-weight: bold;
                                         }
                                     """)
         self.setText(self.variant_value.value)

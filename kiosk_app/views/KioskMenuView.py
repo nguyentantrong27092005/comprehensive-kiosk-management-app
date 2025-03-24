@@ -180,7 +180,7 @@ class MenuWidget(QWidget):
         self.verticalLayout.addWidget(self.frame_content)
         # layout
         self.layout_content = QHBoxLayout(self.frame_content)
-
+        self.layout_content.setContentsMargins(0,0, 0, 0)
         # FRAME MENU (tiêu đề + nội dung)
         self.frame_menu = QFrame(self)
         self.frame_menu.setMinimumSize(125, 635)
@@ -196,10 +196,10 @@ class MenuWidget(QWidget):
         self.layout_menu.addWidget(self.menu_header)
 
         # nội dung Menu
-        self.frame_typeMenu = QFrame(self)
-        self.frame_typeMenu.setMaximumSize(116, 585)
-        # vùng cuộn
-        self.scroll_menu = QScrollArea(self.frame_typeMenu)
+        self.scroll_menu = QScrollArea()
+        self.scroll_menu.setObjectName("scroll_menu")
+        self.scroll_menu.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
         self.scroll_menu.setWidgetResizable(True)
         self.layout_menu.addWidget(self.scroll_menu)
 

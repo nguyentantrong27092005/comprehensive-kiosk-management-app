@@ -10,7 +10,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 
-from admin_app.controllers.AIPromptView import AIPromptViewEx
+from admin_app.controllers.AIPromptViewEx import AIPromptViewEx
 from admin_app.controllers.BestSellerViewEx import BestSellerViewEx
 from admin_app.controllers.EVoucherViewEx import EVoucherWidgetViewEx
 from admin_app.controllers.PaymentSelectStatisticViewEx import PaymentSelectViewStatisticsEx

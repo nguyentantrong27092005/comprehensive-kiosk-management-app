@@ -1,4 +1,4 @@
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import Qt
 import sys
 from PyQt6.QtGui import QFont
@@ -12,6 +12,7 @@ class PaymentSelectViewStatistics(GeneralView):
         self.setWindowTitle("Báo cáo phương thức thanh toán")
         self.main_layout = QtWidgets.QVBoxLayout(self.frameContent)
         self.init_ui()
+        self.setMinimumSize(QtCore.QSize(1280, 720))
         self.pushButtonPaymentMethod.setStyleSheet(
             "background-color: white; color: red; font-size: 14px; font-weight: bold;")
 

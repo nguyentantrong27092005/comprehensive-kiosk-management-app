@@ -9,8 +9,8 @@ class GeneralViewEx(GeneralView):
     def __init__(self):
         super().__init__()
         self.lineEditDate.setReadOnly(True)
-        self.selected_dates = [QDate.currentDate().addDays(-7), QDate.currentDate()]
-        """self.selected_date chứa các ngày (dạng QDate) được chọn / ngày mặc định (7 ngày gần nhất nếu người dùng không chọn). Có thể chuyển về dạng string để query trên sql"""
+        self.selected_dates = [QDate.currentDate().addDays(-29), QDate.currentDate()]
+        """self.selected_date chứa các ngày (dạng QDate) được chọn / ngày mặc định (30 ngày gần nhất nếu người dùng không chọn). Có thể chuyển về dạng string để query trên sql"""
 
         self.calendarFrame = QtWidgets.QFrame(self)
         self.calendarFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)

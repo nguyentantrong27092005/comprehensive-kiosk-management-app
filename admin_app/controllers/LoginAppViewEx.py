@@ -41,7 +41,7 @@ class LoginAppViewEx(LoginAppWidget):
             hashed_password = self.convert_hash_password(password, salt)
 
             if hashed_password == stored_hash:
-                QMessageBox.information(self, "Thông báo", "Đăng nhập thành công")
+                # QMessageBox.information(self, "Thông báo", "Đăng nhập thành công")
                 self.sharedData.signed_in_username = email
                 self.mainStackedWidget.setCurrentIndex(1)
                 current_widget = self.mainStackedWidget.currentWidget()

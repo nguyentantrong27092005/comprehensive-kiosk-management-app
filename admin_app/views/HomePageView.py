@@ -188,7 +188,7 @@ class HomePageView(QtWidgets.QMainWindow):
         self.frameRevenue = QtWidgets.QFrame()
         self.frameRevenue.setObjectName('frameRevenue')
         self.layoutRevenue = QtWidgets.QGridLayout(self.frameRevenue)
-        self.labelRevenue = QtWidgets.QLabel("<b>Doanh thu và lợi nhuận trong 7 ngày gần nhất<b>")
+        self.labelRevenue = QtWidgets.QLabel("<b>Doanh thu trong 7 ngày gần nhất<b>")
         self.layoutRevenue.addWidget(self.labelRevenue, 0, 0, 1, 1)
         self.labelDetailRevenue = QtWidgets.QLabel('<span style ="color: #bd1906;">Chi tiết</span>')
         self.labelDetailRevenue.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)

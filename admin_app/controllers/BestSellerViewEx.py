@@ -1,6 +1,7 @@
 import sys
 import datetime
 import pyqtgraph as pg
+from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QFont
 import pandas as pd
@@ -24,6 +25,7 @@ class BestSellerViewEx(GeneralViewEx):
         super().__init__()
         self.db = db
         self.sharedData = sharedData
+        self.setMinimumSize(QtCore.QSize(1280, 720))
         self.mainStackedWidget = mainStackedWidget
         if not hasattr(self, "frameContent") or self.frameContent is None:
             raise AttributeError("self.frameContent chưa được tạo trong setupUi()")

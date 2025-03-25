@@ -85,7 +85,8 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
         pie_chart_layout = QtWidgets.QVBoxLayout()
         self.pie_chart_figure, self.pie_chart_ax = plt.subplots(figsize=(6, 6)) # Tạo biểu đồ tròn bằng Matplotlib
         self.pie_chart_display = FigureCanvas(self.pie_chart_figure) #Chuyển biểu đồ thành Widget
-        self.pie_chart_display.setFixedSize(600, 400)
+        # self.pie_chart_display.setFixedSize(600, 400)
+        self.pie_chart_display.setFixedHeight(300)
         pie_chart_layout.addWidget(self.pie_chart_display)
         pie_chart_frame.setLayout(pie_chart_layout)
 
@@ -94,7 +95,8 @@ class PaymentSelectViewStatisticsEx(GeneralViewEx):
         line_chart_layout = QtWidgets.QVBoxLayout()
         self.line_chart_figure, self.line_chart_ax = plt.subplots(figsize=(6, 6))
         self.line_chart_display = FigureCanvas(self.line_chart_figure)
-        self.line_chart_display.setFixedSize(600, 400)
+        # self.line_chart_display.setFixedSize(600, 400)
+        self.line_chart_display.setFixedHeight(300)
         line_chart_layout.addWidget(self.line_chart_display)
         line_chart_frame.setLayout(line_chart_layout)
 

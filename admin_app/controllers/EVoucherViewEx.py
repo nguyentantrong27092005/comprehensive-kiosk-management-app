@@ -3,7 +3,7 @@ from datetime import datetime, date, timedelta
 from heapq import nlargest
 
 import pandas as pd
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import QVBoxLayout, QFileDialog, QMessageBox, QStackedWidget
 from collections import defaultdict
@@ -23,6 +23,7 @@ class EVoucherWidgetViewEx(GeneralViewEx, GeneralView):
         self.mainStackedWidget = mainStackedWidget
         self.db = db
         self.sharedData = sharedData
+        self.setMinimumSize(QtCore.QSize(1280, 720))
 
         self.evoucherWidget = EVoucherView.EVoucherWidget()
         # layout chính

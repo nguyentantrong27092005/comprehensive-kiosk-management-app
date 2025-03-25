@@ -14,11 +14,7 @@ class AnalysisWorker(QThread):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.client = genai.Client(
-            vertexai=True,
-            project="gen-lang-client-0248232344",
-            location="us-central1",
-        )
+        self.client = genai.Client()
 
     def run(self):
         document1 = types.Part.from_uri(

@@ -202,7 +202,7 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         """
         self.sharedData.order.totalPrice = 0
         self.sharedData.order.init_calculate_totals()
-        self.orderWidget.lineEdit_total.setText(f"{self.sharedData.order.totalPrice - self.sharedData.order.evoucherDiscount:,}")
+        self.orderWidget.lineEdit_total.setText(f"{self.sharedData.order.totalPrice - self.sharedData.order.evoucherDiscount:,.0f}")
         if is_all:
             self.orderWidget.lineEdit_totaltemp.setText(f"{self.sharedData.order.totalPrice-self.sharedData.order.evoucherDiscount:,}")
 
@@ -236,8 +236,9 @@ class OrderSummaryViewEx(GeneralView.GeneralView):
         self.pushButton_back.clicked.connect(self.processBack)
 
     def processPayment(self):
-        paymentSelectViewEx = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
-        self.mainStackedWidget.change_screen(paymentSelectViewEx, self)
+        if len(self.sharedData.order.orderItems) > 0:
+            paymentSelectViewEx = PaymentSelectViewEx(self.mainStackedWidget, self.sharedData, self.db)
+            self.mainStackedWidget.change_screen(paymentSelectViewEx, self)
 
     def processApplyVoucher(self):
         if self.orderWidget.label_warning.text()!="":

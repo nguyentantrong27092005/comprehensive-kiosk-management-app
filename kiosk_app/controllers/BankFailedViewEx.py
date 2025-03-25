@@ -12,6 +12,8 @@ class BankFailedViewEx(GeneralView.GeneralView):
         self.db = db
         self.title = title
         self.subtitle = subtitle
+        self.frame_ngang.hide()
+        self.label_image.setMaximumHeight(150)
 
         #Khởi tạo và thay đổi nội dung màn hình bank failed
         self.bankFailedView = BankFailedView.BankFailedWidget()

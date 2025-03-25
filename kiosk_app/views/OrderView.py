@@ -122,11 +122,18 @@ class OrderWidget(QtWidgets.QWidget):
             }
         """)
         self.pushButton_payment.setStyleSheet("""
+            QPushButton {
                 border-radius: 6px;
                 background: #bd1906;
                 color: #ffffff;                
                 font-weight: 700;
-                font-size: 15px;""")
+                font-size: 15px;
+            }
+
+            QPushButton:pressed {
+                background: #a61505;
+            }
+        """)
         self.pushButton_apply.setStyleSheet("""
                 background: #8a8a8a;
                 color: #ffffff;""")
@@ -226,7 +233,7 @@ class OrderItemBox(QtWidgets.QFrame):
         if self.orderItem.foodItem.discounted_price != self.orderItem.foodItem.price:
             self.label_price.setText(f"<span style = 'color: #C0BBBB; font-size: 11px;'><s>{self.orderItem.total_item_price+self.orderItem.foodItem.discount:,}</s></span>{self.orderItem.total_item_price/self.orderItem.quantity:,.0f}")
         else:
-            self.label_price.setText(f"{self.orderItem.total_item_price:,}")
+            self.label_price.setText(f"{self.orderItem.total_item_price/self.orderItem.quantity:,.0f}")
         self.gridLayout_price.addWidget(self.pushButton_delete, 0, 2, 2, 1)
         self.gridLayout_price.addWidget(self.label_price, 2, 0, 1, 3)
 

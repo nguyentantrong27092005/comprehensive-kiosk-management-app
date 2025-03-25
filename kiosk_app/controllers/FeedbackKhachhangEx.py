@@ -1,36 +1,81 @@
 import sys
 from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QLabel, QGridLayout, QHBoxLayout
 
 from common.sql_func import Database
 from kiosk_app.controllers.MiniGameFullViewEx import MiniGameFullEx
-from kiosk_app.views.FeedbacKhachhangView import MainWindow
-from kiosk_app.models.Order import Order
 from kiosk_app.models.SharedDataModel import SharedDataModel
+from kiosk_app.views.FeedbacKhachhangView import FeedbackKhachhangView
 from kiosk_app.views.GeneralView import GeneralView
 from kiosk_app.views.CustomStackedWidget import CustomStackedWidget
 
 
-class FeedbackKhachhangEx(MainWindow):
+class FeedbackKhachhangEx(GeneralView):
     def __init__(self, mainStackedWidget: CustomStackedWidget, sharedData: SharedDataModel, db: Database):
-        super().__init__()  # Kế thừa từ FeedbackKhachhang.MainWindow
+        super().__init__()
         self.sharedData = sharedData
         self.db = db
         self.mainStackedWidget = mainStackedWidget
-
+        self.feedbackKH = FeedbackKhachhangView()
+        self.updateUI()
+        self.feedbackKHLayout = QtWidgets.QVBoxLayout(self.frame_chung)
+        self.feedbackKHLayout.addWidget(self.feedbackKH)
         print(f"{self.sharedData.order.id}")
-        # **Sử dụng frame chung từ GeneralView nhưng đặt kích thước = 0**
-        general_view = GeneralView()  # Tạo instance
-        self.frame_ngang = general_view.frame_ngang  # Truy cập thuộc tính
-        self.frame_ngang.setFixedSize(0, 0)
-
-        # **Sử dụng label hình ảnh từ GeneralView**
-        self.image_label = general_view.label_image
 
         # **Khởi tạo các biến khác**
         self.current_rating = 0
         self.feedback_buttons = []
         self.is_submitting = False
         self.setup_connections()
+        self.frame_ngang.hide()
+        self.setStyleSheetAll()
+
+    def updateUI(self):
+        # Hàng sao đánh giá
+        stars_layout = QHBoxLayout()
+        stars_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        stars_layout.setSpacing(3)
+
+        self.stars = []
+        self.current_rating = 0  # Lưu trạng thái số sao đang chọn
+
+        for i in range(5):
+            star_label = QLabel("☆")
+            star_label.setStyleSheet("color: black;font-weight: bold;")
+            star_label.setFont(QFont("Arial", 22))
+            star_label.mousePressEvent = lambda event, index=i: self.set_rating(index + 1)
+            stars_layout.addWidget(star_label)
+            self.stars.append(star_label)
+        self.feedbackKH.layout.addLayout(stars_layout)
+
+        # Nhãn "Tốt" hoặc "Tệ"
+        self.rating_label = QLabel("")
+        self.rating_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.rating_label.setStyleSheet("color: white;")
+        self.feedbackKH.layout.addWidget(self.rating_label)
+
+        # Lưới chứa phản hồi
+        self.feedback_grid = QGridLayout()
+        self.feedback_grid.setSpacing(10)
+        self.feedbackKH.layout.addLayout(self.feedback_grid)
+
+        # Danh sách phản hồi
+        self.feedback_texts_negative = [
+            "Chất lượng phục vụ kém", "Thời gian chờ đợi lâu",
+            "Thức ăn không ngon", "Giá quá cao",
+            "Nhân viên không thân thiện", "Không gian chật chội"
+        ]
+        self.feedback_texts_positive = [
+            "Phục vụ tốt", "Thời gian chờ hợp lý",
+            "Thức ăn ngon", "Giá cả hợp lý",
+            "Nhân viên thân thiện", "Không gian thoáng đãng"
+        ]
+
+        self.feedback_buttons = []
+        self.feedbackKH.layout.addWidget(self.feedbackKH.submit_button)
+
 
     def setup_connections(self):
         if hasattr(self, 'stars'):
@@ -38,11 +83,11 @@ class FeedbackKhachhangEx(MainWindow):
                 self.stars[i].mousePressEvent = self.create_rating_handler(i + 1)
 
         try:
-            self.submit_button.clicked.disconnect()
+            self.feedbackKH.submit_button.clicked.disconnect()
         except TypeError:
             pass
 
-        self.submit_button.clicked.connect(self.submit_feedback)
+        self.feedbackKH.submit_button.clicked.connect(self.submit_feedback)
 
     def create_rating_handler(self, rating):
         def handler(event):
@@ -63,7 +108,9 @@ class FeedbackKhachhangEx(MainWindow):
         # Cập nhật nhãn đánh giá
         if hasattr(self, 'rating_label'):
             self.rating_label.setText("Tốt" if rating >= 4 else "Tệ")
-            self.rating_label.setStyleSheet("font-size: 10pt; font-weight: bold; color: gray;")
+            list_fb = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"]
+            self.rating_label.setText(f"{list_fb[rating-1]}")
+            self.rating_label.setStyleSheet("font-weight: bold; color: gray;")
 
         # Xóa hết các lựa chọn phản hồi trước đó
         for button in self.feedback_buttons:
@@ -76,20 +123,33 @@ class FeedbackKhachhangEx(MainWindow):
         self.update_feedback_buttons(rating)
 
     def update_feedback_buttons(self, rating):
-        feedback_texts = self.feedback_texts_positive if rating >= 4 else self.feedback_texts_negative
+        feedback_texts = self.feedback_texts_positive if rating >= 3 else self.feedback_texts_negative
         for i, text in enumerate(feedback_texts):
             button = QtWidgets.QPushButton(text)
             button.setCheckable(True)
-            button.setStyleSheet("background-color: solid lightgray; color: black")
+            button.setStyleSheet("""
+                QPushButton {
+                    border: 1px solid #D4CDCD;
+                    border-radius: 5px;
+                    background-color: white;
+                }
+            """)
+            button.setMinimumSize(135, 50)
             button.clicked.connect(lambda checked, btn=button: self.toggle_feedback_button(btn))
             self.feedback_grid.addWidget(button, i // 2, i % 2)
             self.feedback_buttons.append(button)
 
     def toggle_feedback_button(self, button):
         if button.isChecked():
-            button.setStyleSheet("background-color: green; color: blue;")
+            button.setStyleSheet("background-color: #E2E0E0; border-radius: 5px; border: 1px solid #D4CDCD;")
         else:
-            button.setStyleSheet("background-color: solid lightgray; color: black")
+            button.setStyleSheet("""
+                            QPushButton {
+                                border: 1px solid #D4CDCD;
+                                border-radius: 5px;
+                                background-color: white;
+                            }
+                        """)
 
     def submit_feedback(self):
         if self.is_submitting:
@@ -134,18 +194,6 @@ class FeedbackKhachhangEx(MainWindow):
     def open_minigame_view(self):
         minigameView = MiniGameFullEx(self.mainStackedWidget, self.sharedData, self.db)
         self.mainStackedWidget.change_screen(minigameView, self)
+    def setStyleSheetAll(self):
+        self.frame_chung.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    mainStackedWidget = QtWidgets.QStackedWidget()
-
-    sharedData = SharedDataModel()
-    sharedData.order = Order()
-    sharedData.order.ID = 3  # Cho bất kỳ giá trị nào để test thử
-    db = Database("34.101.167.101", "dev", "12345678x@X", "kioskapp")
-
-    # Bây giờ có thể gọi FeedbackKhachhangEx mà không bị lỗi
-    window = FeedbackKhachhangEx(mainStackedWidget, sharedData, db)
-    window.show()
-    sys.exit(app.exec())

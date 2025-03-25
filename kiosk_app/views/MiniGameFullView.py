@@ -4,8 +4,6 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class MiniGameFull(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Hộp Quà May Mắn")
-        self.resize(478, 592)
         self.setStyleSheet("background-color: white;")
         self.setup_ui()
 
@@ -13,7 +11,6 @@ class MiniGameFull(QtWidgets.QWidget):
 
         # Set chiều dọc cho cả layout
         main_layout = QtWidgets.QVBoxLayout(self)
-        base_dir = os.path.dirname(os.path.abspath(__file__))
 
         # Grid layout chứa 8 hộp quà
         grid_layout = QtWidgets.QGridLayout()

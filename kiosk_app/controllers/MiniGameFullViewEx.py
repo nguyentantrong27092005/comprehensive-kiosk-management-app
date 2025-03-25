@@ -20,11 +20,12 @@ class MiniGameFullEx(GeneralView):
         self.db = db
         self.mainStackedWidget = mainStackedWidget
         self.minigameFullView = MiniGameFull()
-
+        self.pushButton_back.setText("Hộp quà may mắn")
+        self.pushButton_back.setIcon(QtGui.QIcon())
         self.minigameFullVLayout = QVBoxLayout(self.frame_chung)
         self.minigameFullVLayout.addWidget(self.minigameFullView)
         self.minigameFullVLayout.setContentsMargins(0, 0, 0, 0)
-        self.label_image.setPixmap(QtGui.QPixmap("kiosk_app/resources/images/img_bannerminigame.png").scaled(478,150))
+        self.label_image.setMaximumHeight(150)
         self.setup_connections()
 
     def setup_connections(self):

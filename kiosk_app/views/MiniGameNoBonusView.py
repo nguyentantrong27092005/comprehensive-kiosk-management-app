@@ -10,24 +10,22 @@ class MiniGameNoBonus(QtWidgets.QWidget):
         self.setupUi()
 
     def setupUi(self):
-        self.setWindowTitle("Kết Quả")
-        self.resize(478, 592)
         self.setStyleSheet("background-color: white;")
 
         # Layout chính
         layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 60)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Hình ảnh minigame phần may mắn lần sau
-        self.label_image_main = QtWidgets.QLabel(self)
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        image_path = "kiosk_app/resources/images/bannermngame.png"
-        pixmap = QtGui.QPixmap(image_path)
-        self.label_image_main.setPixmap(pixmap)
-        self.label_image_main.setFixedHeight(150)
-        self.label_image_main.setScaledContents(True)
-        self.label_image_main.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.label_image_main)
+        # self.label_image_main = QtWidgets.QLabel(self)
+        # image_path = "kiosk_app/resources/images/bannermngame.png"
+        # pixmap = QtGui.QPixmap(image_path)
+        # self.label_image_main.setPixmap(pixmap)
+        # self.label_image_main.setFixedHeight(150)
+        # self.label_image_main.setScaledContents(True)
+        # self.label_image_main.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        # layout.addWidget(self.label_image_main)
 
         # Spacer để căn giữa ảnh "Better Luck Next Time"
         layout.addStretch(1)
@@ -64,8 +62,8 @@ class MiniGameNoBonus(QtWidgets.QWidget):
         layout_two_btns = QtWidgets.QVBoxLayout()
 
         self.pushButton_confirm = QtWidgets.QPushButton("Xác nhận", self)
-        self.pushButton_confirm.setStyleSheet("background-color: red; color: white; font-weight: bold; font-size: 15px;  border-radius: 10px;")
-        self.pushButton_confirm.setFixedSize(150, 40)
+        self.pushButton_confirm.setStyleSheet("background-color: #bd1906; color: white; font-weight: bold; font-size: 15px;  border-radius: 10px;")
+        self.pushButton_confirm.setFixedSize(285, 40)
 
         layout_two_btns.addWidget(self.pushButton_confirm, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 

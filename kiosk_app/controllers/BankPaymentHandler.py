@@ -19,7 +19,7 @@ class BankPaymentHandler:
 
     def create_payment(self, order: Order):
         itemsData = self.transform_items_data(order.orderItems)
-        paymentData = PaymentData(orderCode=order.id, amount=order.totalPrice, description="Thanh toan don hang",
+        paymentData = PaymentData(orderCode=order.id, amount=int(order.totalPrice-order.evoucherDiscount) if order.evoucherGiamGiaId else int(order.totalPrice), description="Thanh toan don hang",
                                   items=itemsData, cancelUrl="http://localhost:8000", returnUrl="http://localhost:8000",
                                   expiredAt=int(datetime.datetime.now().timestamp()) + 300)
         try:

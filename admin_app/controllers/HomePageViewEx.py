@@ -25,6 +25,8 @@ class HomePageViewEx(HomePageView):
         self.db = db
         self.sharedData = sharedData
         self.colors = ['#991203','#BD1906', '#CA4738', '#EBBAB4','#F8E8E6']
+        self.promo = None
+        self.revenue = None
         self.updateUI()
 
     def updateUI(self):
@@ -143,7 +145,7 @@ class HomePageViewEx(HomePageView):
                 FROM kioskapp.fooditem f
                 JOIN kioskapp.orderdetails od ON f.ID = od.FoodItemID
                 JOIN kioskapp.order o ON od.OrderID = o.ID
-                WHERE o.Status = 'Done'  
+                WHERE o.Status in ('Done', 'in progress')  
                       AND o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)
                 GROUP BY f.Name
                 ORDER BY DoanhThu DESC
@@ -159,7 +161,7 @@ class HomePageViewEx(HomePageView):
                 FROM evoucher ev
                 JOIN evouchergiamgia evgg ON ev.ID = evgg.EVoucherID
                 LEFT JOIN `order` o ON evgg.ID = o.EVoucherGiamGiaID
-                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status = 'done'
+                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status in ('Done', 'in progress')
             
                 UNION ALL
                 SELECT ev.Name AS TenChuongTrinh, o.CreateAt, o.TotalPrice
@@ -167,14 +169,14 @@ class HomePageViewEx(HomePageView):
                 JOIN orderdetails od ON o.ID = od.OrderID
                 JOIN evouchertangmon evtm ON evtm.ID = od.EVoucherTangMonID
                 JOIN evoucher ev ON ev.ID = evtm.EVoucherID
-                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status = 'done'
+                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status in ('Done', 'in progress')
             
                 UNION ALL
                 SELECT p.Name AS TenChuongTrinh, o.CreateAt, o.TotalPrice
                 FROM `order` o
                 JOIN orderdetails od ON o.ID = od.OrderID
                 JOIN promotion p ON p.ID = od.PromotionID
-                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status = 'done'
+                WHERE o.CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY) AND o.Status in ('Done', 'in progress')
             ),
             TopPrograms AS (
                 SELECT TenChuongTrinh
@@ -197,7 +199,7 @@ class HomePageViewEx(HomePageView):
         DATE(CreateAt) AS Ngay
         FROM kioskapp.order 
         WHERE CreateAt >= DATE_SUB(current_time(), INTERVAL 6 DAY)
-        AND Status = 'done'
+        AND Status in ('Done', 'in progress')
         GROUP BY Ngay
         ORDER BY Ngay ASC;"""
         result = self.db.fetch_data(sql)
@@ -321,7 +323,7 @@ class HomePageViewEx(HomePageView):
            COUNT(*) AS TotalAmount,
            ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM kioskapp.order WHERE CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)), 2) AS Percent
         FROM kioskapp.order
-        WHERE Status = 'done' AND CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)
+        WHERE Status in ('Done', 'in progress') AND CreateAt >= DATE_SUB(NOW(), INTERVAL 6 DAY)
         GROUP BY Payment;"""
         result = self.db.fetch_data(sql)
         return result
@@ -341,21 +343,21 @@ class HomePageViewEx(HomePageView):
         sql = """SELECT COALESCE(SUM(o.TotalPrice), 0) AS TongDoanhThu 
         FROM `order` o
         WHERE DATE(CreateAt) = %s
-        AND Status = 'Done';"""
+        AND Status in ('Done', 'in progress');"""
         result = [self.db.fetch_data(sql,f"{self.currentDate.toString('yyyy-MM-dd')}"), self.db.fetch_data(sql,f"{self.currentDate.addDays(-1).toString('yyyy-MM-dd')}")]
         return [result[0][0]['TongDoanhThu'], result[1][0]['TongDoanhThu']]
 
     def ChiPhiGiamGia(self):
         sql = """SELECT COALESCE(SUM(o.EVoucherDiscount), 0) AS TongChiPhi
         FROM `order` o
-        WHERE Status = 'done'
+        WHERE Status in ('Done', 'in progress')
         AND DATE(CreateAt) = %s;"""
         result = self.db.fetch_data(sql, f"{self.currentDate.toString('yyyy-MM-dd')}")
         return result[0]['TongChiPhi']
 
     def TongHoaDon(self):
         sql ="""SELECT COUNT(*) AS TongSoHoaDon FROM `order`
-        WHERE Status = 'Done'
+        WHERE Status in ('Done', 'in progress')
         AND DATE(CreateAt) = %s;"""
         result = self.db.fetch_data(sql, f"{self.currentDate.toString('yyyy-MM-dd')}")
         return result[0]['TongSoHoaDon']
@@ -363,7 +365,7 @@ class HomePageViewEx(HomePageView):
     def TongHoaDon_dangxuly(self):
         sql = """SELECT COUNT(*) AS SoHoaDonDãngXuLy
         FROM `order`
-        WHERE Status IN ('inprocess', 'unpaid')
+        WHERE Status IN ('in progress', 'unpaid')
         AND DATE(CreateAt) = %s;"""
         result = self.db.fetch_data(sql, f"{self.currentDate.toString('yyyy-MM-dd')}")
         return result[0]['SoHoaDonDãngXuLy']
